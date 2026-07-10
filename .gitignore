@@ -1,0 +1,66 @@
+# ==========================================
+# Dependencies & Package Managers
+# ==========================================
+node_modules/
+jspm_packages/
+web_modules/
+.npm/
+.yarn/
+*.log
+
+# ==========================================
+# Environment Variables & Secrets (CRITICAL)
+# ==========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.json
+
+# ==========================================
+# Production Builds & Outputs
+# ==========================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.docusaurus/
+.svelte-kit/
+
+# ==========================================
+# OS Junk Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs.dmg
+[Dd]ownloads/
+*.lnk
+
+# ==========================================
+# IDEs and Code Editors
+# ==========================================
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# IntelliJ / JetBrains
+.idea/
+*.iws
+*.iml
+
+# Vim
+*~
+*.swp
+*.swo
