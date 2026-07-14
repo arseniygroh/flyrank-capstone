@@ -1,8 +1,8 @@
-import './App.css'
+import PlaylistForm from "./components/PlaylistForm"
 
 function App() {
   return (
-    <div>Hello World</div>
+    <PlaylistForm />
   )
 }
 
