@@ -1,9 +1,10 @@
-import './App.css'
+import PlaylistForm from './components/PlaylistForm'
 
 function App() {
-  return (
-    <div>Hello World</div>
-  )
+  function handleCreatePlaylist(playlist) {
+    console.log(playlist)
+  }
+  return <PlaylistForm onSubmit={handleCreatePlaylist} />
 }
 
 export default App
