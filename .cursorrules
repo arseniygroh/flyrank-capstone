@@ -12,3 +12,6 @@ Frontend application integrating AI features for the FlyRank capstone.
 - Prioritize clear error handling, especially when interfacing with AI endpoints or APIs.
 - Keep terminal commands limited to npm/git operations.
 - Always follow Conventional Commits formatting for git history.
+- Always use proper semantic HTML tags and ARIA attributes for form accessibility.
+- All form components must evaluate local validation state and disable submission buttons if constraints are not met.
+- Include a state for inputs to prevent validation errors from displaying before the user interacts with the field.
