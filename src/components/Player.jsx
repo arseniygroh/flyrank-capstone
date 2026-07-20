@@ -4,7 +4,7 @@ export default function Player({ track }) {
     if (!track) return null;
   
     return (
-      <div className="h-24 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between px-6">
+      <div className="w-full h-24 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between px-6">
         <div className="flex items-center gap-4 w-1/3">
           <img 
               src={track.artworkUrl60} 
