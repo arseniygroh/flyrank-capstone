@@ -1,15 +1,25 @@
 "use client";
-import { usePlaylists } from "@/context/PlaylistsContext"; 
+import { useState } from "react";
+import { usePlaylists } from "@/context/PlaylistsContext";
 
 export default function TrackCard({track}: {track: any}) {
-  const {setCurrentTrack} = usePlaylists();
+  const {setCurrentTrack, playlists, addTrackToPlaylist} = usePlaylists();
+  
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   const handlePlay = () => {
     setCurrentTrack(track);
   };
 
-  const handleAdd = () => {
-    console.log("Opening add to playlist modal");
+  const handleSelectPlaylist = (playlistId: string) => {
+    addTrackToPlaylist(playlistId, track);
+    setShowDropdown(false);
+
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   };
 
   return (
@@ -23,7 +33,6 @@ export default function TrackCard({track}: {track: any}) {
         <button 
           onClick={handlePlay}
           className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-black text-xl pl-1"
-          aria-label="Play track"
         >
           ▶
         </button>
@@ -38,12 +47,37 @@ export default function TrackCard({track}: {track: any}) {
         </p>
       </div>
       
-      <button 
-        onClick={handleAdd}
-        className="w-full py-1.5 text-xs font-bold text-neutral-900 bg-white rounded-full hover:bg-neutral-200 transition-colors mt-auto"
-      >
-        + Add to Playlist
-      </button>
+      <div className="relative mt-auto">
+        {showDropdown && (
+          <div className="absolute bottom-full mb-2 left-0 w-full bg-neutral-800 rounded-md shadow-xl border border-neutral-700 overflow-hidden z-10 max-h-40 overflow-y-auto">
+            {playlists.length === 0 ? (
+              <p className="p-3 text-xs text-neutral-400 text-center">No playlists yet.</p>
+            ) : (
+              playlists.map((p: any) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleSelectPlaylist(p.id)}
+                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 transition-colors truncate"
+                >
+                  {p.name}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+
+        <button 
+          onClick={() => setShowDropdown(!showDropdown)}
+          disabled={isAdded}
+          className={`w-full py-1.5 text-xs font-bold rounded-full transition-colors ${
+            isAdded 
+              ? "bg-green-500 text-black" 
+              : "bg-white text-neutral-900 hover:bg-neutral-200"
+          }`}
+        >
+          {isAdded ? "Added" : "+ Add to Playlist"}
+        </button>
+      </div>
     </div>
   );
 }
