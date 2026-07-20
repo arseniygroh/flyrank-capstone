@@ -1,3 +1,4 @@
+import TrackCard from "@/components/TrackCard";
 import Link from "next/link";
 
 async function fetchCategory(term: string) {
@@ -53,22 +54,7 @@ export default async function HomePage() {
             
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
               {category.tracks.map((track: any) => (
-                <div 
-                  key={track.trackId} 
-                  className="min-w-[160px] max-w-[160px] p-4 bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors snap-start shrink-0 group relative"
-                >
-                  <img 
-                    src={track.artworkUrl100.replace('100x100', '300x300')} 
-                    alt={track.trackName}
-                    className="w-full aspect-square object-cover rounded-md mb-3 shadow-lg group-hover:opacity-75 transition-opacity"
-                  />
-                  <p className="font-semibold text-sm truncate">
-                    {track.trackName}
-                  </p>
-                  <p className="text-xs text-neutral-400 truncate">
-                    {track.artistName}
-                  </p>
-                </div>
+                <TrackCard track={track} key={track.trackId} />
               ))}
             </div>
           </section>

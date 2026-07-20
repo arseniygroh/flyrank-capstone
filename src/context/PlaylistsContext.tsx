@@ -24,6 +24,7 @@ type PlaylistsContextValue = {
   createPlaylist: (formData: PlaylistFormData) => Playlist;
   updatePlaylist: (playlist: Playlist) => void;
   deletePlaylist: (id: string) => void;
+  addTrackToPlaylist: (playlistId: string, track: any) => void;
 };
 
 const PlaylistsContext = createContext<PlaylistsContextValue | null>(null);
@@ -71,6 +72,20 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     setPlaylists((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
+  const addTrackToPlaylist = (playlistId: string, track: any) => {
+    setPlaylists(prev => {
+      return prev.map(playlist => {
+        if (playlist.id === playlistId) {
+          const exists = playlist.tracks.some(t => t.trackId === track.trackId);
+          if (exists) return playlist;
+          
+          return { ...playlist, tracks: [...playlist.tracks, track] };
+        }
+        return playlist;
+      });
+    });
+  };
+
   const value = useMemo(
     () => ({
       playlists,
@@ -81,6 +96,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       createPlaylist,
       updatePlaylist,
       deletePlaylist,
+      addTrackToPlaylist
     }),
     [
       playlists,
@@ -90,6 +106,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       createPlaylist,
       updatePlaylist,
       deletePlaylist,
+      addTrackToPlaylist
     ]
   );
 
