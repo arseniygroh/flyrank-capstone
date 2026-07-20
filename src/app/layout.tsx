@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flyrank Playlists",
+  title: "Music App",
   description: "Create playlists and preview tracks from iTunes",
 };
 
