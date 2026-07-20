@@ -32,9 +32,9 @@ export default function AppShell({ children }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      <div className="flex min-h-0 flex-1">
-        <aside className="flex w-64 shrink-0 flex-col border-r border-neutral-800 bg-neutral-950 p-6">
-          <nav className="mb-6 flex flex-col gap-3">
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <aside className="flex w-full md:w-64 shrink-0 flex-col border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-950 p-4 md:p-6 max-h-[40vh] md:max-h-none">
+          <nav className="mb-4 md:mb-6 flex flex-row md:flex-col gap-4 overflow-x-auto pb-2 md:pb-0">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/playlist/new">New playlist</NavLink>
           </nav>
