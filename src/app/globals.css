@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.swiper-slide, .swiper-slide-active, .swiper-slide-next, .swiper-slide-prev {
+  width: fit-content !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #fff !important;
+  min-height: 11px !important;
+  height: unset !important;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 24px 16px;
+  border-radius: 8px;
+  transform: scale(0.6);
+}

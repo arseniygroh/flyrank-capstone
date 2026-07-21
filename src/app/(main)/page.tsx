@@ -1,4 +1,5 @@
 import TrackCard from "@/components/TrackCard";
+import TrackCarousel from "@/components/TrackCarousel";
 import Link from "next/link";
 
 async function fetchCategory(term: string) {
@@ -51,12 +52,7 @@ export default async function HomePage() {
         {feedCategories.map((category) => (
           <section key={category.title}>
             <h2 className="text-2xl font-bold mb-4">{category.title}</h2>
-            
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
-              {category.tracks.map((track: any) => (
-                <TrackCard track={track} key={track.trackId} />
-              ))}
-            </div>
+            <TrackCarousel tracks={category.tracks} />
           </section>
         ))}
       </div>

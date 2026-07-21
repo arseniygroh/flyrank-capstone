@@ -12,16 +12,14 @@ export default function TrackCarousel({tracks}: {tracks: any[]}) {
     return (
         <Swiper
         modules={[Navigation, FreeMode]}
-        spaceBetween={30}
-        slidesPerView={1}
+        spaceBetween={20}
+        slidesPerView="auto"
+        freeMode={true}
         navigation
-        breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: 3, spaceBetween: 30 },
-        }}
+        className="w-full pb-4 !px-1"
       >
         {tracks.map((track) => (
-          <SwiperSlide key={track.trackId}>
+          <SwiperSlide key={track.trackId} style={{width: "auto"}}>
             <TrackCard track={track} />
           </SwiperSlide>
         ))}
