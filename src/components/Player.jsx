@@ -47,13 +47,13 @@ export default function Player({track}) {
 
   return (
     <div className="w-full h-auto py-4 md:h-24 md:py-0 bg-neutral-900 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between px-6 gap-4 md:gap-0">
-      <div className="flex items-center gap-4 w-full justify-center md:justify-start">
+      <div className="flex flex-col min-[468px]:flex-row items-center gap-4 w-full justify-center md:justify-start">
         <img
           src={track.artworkUrl60}
           alt="Album art"
           className="w-14 h-14 rounded-md shadow-lg"
         />
-        <div className="truncate text-center md:text-left">
+        <div className="truncate text-center min-[468px]:text-left">
           <p className="text-white font-bold">{track.trackName}</p>
           <p className="text-neutral-400 text-sm">{track.artistName}</p>
         </div>
@@ -94,7 +94,6 @@ export default function Player({track}) {
           <span>{duration}</span>
         </div>
       </div>
-      <div className="hidden md:block md:w-1/3"></div>
     </div>
   );
 }
