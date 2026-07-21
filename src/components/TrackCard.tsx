@@ -38,11 +38,13 @@ export default function TrackCard({track}: {track: PlaylistTrack | null}) {
           alt={track?.trackName}
           className="w-full aspect-square object-cover rounded-md shadow-lg group-hover:opacity-50 transition-opacity"
         />
-        <button 
+        <button
           onClick={handleTogglePlay}
-          className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-black text-xl pl-1"
+          className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full flex items-center justify-center
+                    opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100
+                    transition-opacity text-black text-xl pl-1"
         >
-          {showPauseIcon ? "⏸" : "▶"}  
+          {showPauseIcon ? "⏸" : "▶"}
         </button>
       </div>
       
