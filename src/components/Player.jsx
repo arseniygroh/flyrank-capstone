@@ -46,19 +46,19 @@ export default function Player({track}) {
   if (!track) return null;
 
   return (
-    <div className="w-full h-24 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
+    <div className="w-full h-auto py-4 md:h-24 md:py-0 bg-neutral-900 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between px-6 gap-4 md:gap-0">
+      <div className="flex items-center gap-4 w-full justify-center md:justify-start">
         <img
           src={track.artworkUrl60}
           alt="Album art"
           className="w-14 h-14 rounded-md shadow-lg"
         />
-        <div className="truncate">
+        <div className="truncate text-center md:text-left">
           <p className="text-white font-bold">{track.trackName}</p>
           <p className="text-neutral-400 text-sm">{track.artistName}</p>
         </div>
       </div>
-      <div className="w-1/3 flex flex-col items-center justify-center gap-2">
+      <div className="w-full md:w-1/3 flex flex-col items-center justify-center gap-2">
         <audio
           key={track.trackId}
           ref={playerRef}
@@ -71,7 +71,7 @@ export default function Player({track}) {
         />
         <button
           onClick={() => isPaused ? resumeTrack() : pauseTrack()}
-          className="w-10 h-10 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform"
+          className="w-10 h-10 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shrink-0"
         >
           {isPaused ? (
             <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 ml-1">
@@ -94,6 +94,7 @@ export default function Player({track}) {
           <span>{duration}</span>
         </div>
       </div>
+      <div className="hidden md:block md:w-1/3"></div>
     </div>
   );
 }
