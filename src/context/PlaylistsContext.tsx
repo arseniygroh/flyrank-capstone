@@ -18,6 +18,7 @@ import type { Playlist, PlaylistFormData, PlaylistTrack } from "@/types/playlist
 type PlaylistsContextValue = {
   playlists: Playlist[];
   hydrated: boolean;
+  isPaused: boolean;
   currentTrack: PlaylistTrack | null;
   setCurrentTrack: (track: PlaylistTrack | null) => void;
   getPlaylist: (id: string) => Playlist | undefined;
@@ -25,6 +26,9 @@ type PlaylistsContextValue = {
   updatePlaylist: (playlist: Playlist) => void;
   deletePlaylist: (id: string) => void;
   addTrackToPlaylist: (playlistId: string, track: any) => void;
+  pauseTrack: () => void;
+  setCurrentTrackAndPlay: (track: PlaylistTrack | null) => void;
+  resumeTrack: () => void;
 };
 
 const PlaylistsContext = createContext<PlaylistsContextValue | null>(null);
@@ -33,6 +37,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [currentTrack, setCurrentTrack] = useState<PlaylistTrack | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     try {
@@ -72,41 +77,59 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     setPlaylists((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
-  const addTrackToPlaylist = (playlistId: string, track: any) => {
-    setPlaylists(prev => {
-      return prev.map(playlist => {
-        if (playlist.id === playlistId) {
-          const exists = playlist.tracks.some(t => t.trackId === track.trackId);
-          if (exists) return playlist;
-          
-          return { ...playlist, tracks: [...playlist.tracks, track] };
-        }
-        return playlist;
-      });
-    });
-  };
+  const pauseTrack = useCallback(() => {
+    setIsPaused(true);
+  }, []);
+
+  const resumeTrack = useCallback(() => {
+    setIsPaused(false);
+  }, []);
+
+  const setCurrentTrackAndPlay = useCallback((track: PlaylistTrack | null) => {
+    setCurrentTrack(track);
+    setIsPaused(false);
+  }, []);
+  
+  const addTrackToPlaylist = useCallback((playlistId: string, track: PlaylistTrack) => {
+    setPlaylists(prev =>
+      prev.map(playlist => {
+        if (playlist.id !== playlistId) return playlist;
+        const exists = playlist.tracks.some(t => t.trackId === track.trackId);
+        if (exists) return playlist;
+        return { ...playlist, tracks: [...playlist.tracks, track] };
+      })
+    );
+  }, []);
 
   const value = useMemo(
     () => ({
       playlists,
       hydrated,
       currentTrack,
+      isPaused,
       setCurrentTrack,
       getPlaylist,
       createPlaylist,
       updatePlaylist,
       deletePlaylist,
-      addTrackToPlaylist
+      addTrackToPlaylist,
+      pauseTrack,
+      setCurrentTrackAndPlay,
+      resumeTrack
     }),
     [
       playlists,
       hydrated,
+      isPaused,
       currentTrack,
       getPlaylist,
       createPlaylist,
       updatePlaylist,
       deletePlaylist,
-      addTrackToPlaylist
+      addTrackToPlaylist,
+      pauseTrack,
+      setCurrentTrackAndPlay,
+      resumeTrack
     ]
   );
 

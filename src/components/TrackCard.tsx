@@ -1,15 +1,23 @@
 "use client";
 import { useState } from "react";
 import { usePlaylists } from "@/context/PlaylistsContext";
+import type { PlaylistTrack } from "@/types/playlist";
 
-export default function TrackCard({track}: {track: any}) {
-  const {setCurrentTrack, playlists, addTrackToPlaylist} = usePlaylists();
-  
+export default function TrackCard({track}: {track: PlaylistTrack | null}) {
+  const {setCurrentTrackAndPlay, playlists, addTrackToPlaylist, isPaused, pauseTrack, currentTrack, resumeTrack} = usePlaylists();
+ 
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
-  const handlePlay = () => {
-    setCurrentTrack(track);
+  const isCurrentTrack = currentTrack?.trackId === track?.trackId;
+  const showPauseIcon = isCurrentTrack && !isPaused;
+  
+  const handleTogglePlay = () => {
+    if (isCurrentTrack) {
+      isPaused ? resumeTrack() : pauseTrack();
+    } else {
+      setCurrentTrackAndPlay(track);
+    }
   };
 
   const handleSelectPlaylist = (playlistId: string) => {
@@ -26,24 +34,24 @@ export default function TrackCard({track}: {track: any}) {
     <div className="min-w-[160px] max-w-[160px] p-4 bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors snap-start shrink-0 group relative flex flex-col">
       <div className="relative mb-3">
         <img 
-          src={track.artworkUrl100.replace('100x100', '300x300')} 
-          alt={track.trackName}
+          src={track?.artworkUrl100.replace('100x100', '300x300')} 
+          alt={track?.trackName}
           className="w-full aspect-square object-cover rounded-md shadow-lg group-hover:opacity-50 transition-opacity"
         />
         <button 
-          onClick={handlePlay}
+          onClick={handleTogglePlay}
           className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-black text-xl pl-1"
         >
-          ▶
+          {showPauseIcon ? "⏸" : "▶"}  
         </button>
       </div>
       
       <div className="flex-1">
-        <p className="font-semibold text-sm truncate" title={track.trackName}>
-          {track.trackName}
+        <p className="font-semibold text-sm truncate" title={track?.trackName}>
+          {track?.trackName}
         </p>
-        <p className="text-xs text-neutral-400 truncate mb-4" title={track.artistName}>
-          {track.artistName}
+        <p className="text-xs text-neutral-400 truncate mb-4" title={track?.artistName}>
+          {track?.artistName}
         </p>
       </div>
       

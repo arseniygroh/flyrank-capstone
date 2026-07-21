@@ -6,6 +6,7 @@ export type PlaylistTrack = {
   artistName: string;
   artworkUrl60?: string;
   previewUrl?: string;
+  artworkUrl100: string;
 };
 
 export type Playlist = {
