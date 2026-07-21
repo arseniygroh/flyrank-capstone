@@ -7,7 +7,7 @@ export default function Player({track}) {
   
   const { isPaused, pauseTrack, resumeTrack } = usePlaylists(); 
   const playerRef = useRef(null);
-  
+  const progressRef = useRef();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
@@ -42,6 +42,15 @@ export default function Player({track}) {
     if (!playerRef.current) return;
     setDuration(formatTime(playerRef.current.duration));
   };
+
+  const handleProgressClick = (e) => {
+    const width = progressRef.current.clientWidth;
+    const clickX = e.nativeEvent.offsetX;
+    const duration = playerRef.current.duration;
+    
+    playerRef.current.currentTime = (clickX / width) * duration;
+
+  }
 
   if (!track) return null;
 
@@ -85,12 +94,15 @@ export default function Player({track}) {
         </button>
         <div className="flex items-center gap-2 w-full max-w-md text-xs text-neutral-400 font-mono">
           <span>{currentTime}</span>
-          <div className="h-1.5 flex-1 bg-neutral-800 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-white rounded-full"
+          <div 
+            onClick={handleProgressClick}
+            ref={progressRef}
+            className="h-1.5 flex-1 bg-neutral-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-white rounded-full pointer"
               style={{width: `${progress}%`}}
             />
-          </div>
+            </div>
           <span>{duration}</span>
         </div>
       </div>
