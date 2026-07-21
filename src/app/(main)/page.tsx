@@ -25,15 +25,18 @@ export default async function HomePage() {
   const feedCategories = [
     { 
       title: "Trending Pop", 
-      tracks: popTracks 
+      tracks: popTracks,
+      term: "pop hit"
     },
     { 
       title: "Classic Rock", 
-      tracks: rockTracks 
+      tracks: rockTracks,
+      term: "classic rock",
     },
     { 
       title: "Electronic & Dance", 
-      tracks: electronicTracks 
+      tracks: electronicTracks,
+      term: "electronic dance"
     },
   ];
 
@@ -52,7 +55,7 @@ export default async function HomePage() {
         {feedCategories.map((category) => (
           <section key={category.title}>
             <h2 className="text-2xl font-bold mb-4">{category.title}</h2>
-            <TrackCarousel tracks={category.tracks} />
+            <TrackCarousel tracks={category.tracks} term={category.term} />
           </section>
         ))}
       </div>

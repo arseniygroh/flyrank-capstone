@@ -9,7 +9,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 
-export default function TrackCarousel({tracks: initialTracks}: {tracks: any[]}) {
+export default function TrackCarousel({tracks: initialTracks, term}: {tracks: any[], term: string}) {
   const [tracks, setTracks] = useState(initialTracks);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -18,6 +18,7 @@ export default function TrackCarousel({tracks: initialTracks}: {tracks: any[]}) 
     setIsLoadingMore(true);
 
     try {
+
     
     } catch (error: any) {
       alert(error.message);
