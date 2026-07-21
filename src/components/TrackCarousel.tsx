@@ -18,7 +18,12 @@ export default function TrackCarousel({tracks: initialTracks, term}: {tracks: an
     setIsLoadingMore(true);
 
     try {
+        const res = await fetch(`/api/tracks?term=${encodeURIComponent(term)}&offset=${tracks.length}`);
+      
+        if (!res.ok) throw new Error("Failed to fetch more tracks");
 
+        const newTracks = await res.json();
+        setTracks(prev => [...prev, ...newTracks]);
     
     } catch (error: any) {
       alert(error.message);
