@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import PlaylistForm from "@/components/PlaylistForm";
 import { usePlaylists } from "@/context/PlaylistsContext";
 import type { PlaylistFormData } from "@/types/playlist";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function NewPlaylistPage() {
   const router = useRouter();
@@ -15,11 +16,13 @@ export default function NewPlaylistPage() {
   }
 
   return (
-    <div className="flex min-h-full items-start justify-center p-6 xl:p-10">
-      <div className="w-full max-w-lg">
-        <h1 className="mb-8 text-3xl font-bold">Create playlist</h1>
-        <PlaylistForm onSubmit={handleSubmit} />
+    <ProtectedRoute>
+      <div className="flex min-h-full items-start justify-center p-6 xl:p-10">
+        <div className="w-full max-w-lg">
+          <h1 className="mb-8 text-3xl font-bold">Create playlist</h1>
+          <PlaylistForm onSubmit={handleSubmit} />
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
