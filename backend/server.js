@@ -67,7 +67,33 @@ app.get("/playlists", authenticateToken, async (req, res) => {
     } catch (error) {
       res.status(500).json({error: "Failed to fetch playlists"});
     }
-  });
+});
+
+app.post("/playlists", authenticateToken, async (req, res) => {
+    try {
+      const { title, description, tracks = [] } = req.body;
+      
+      if (!title) {
+        return res.status(422).json({error: "Playlist title is required."});
+      }
+      const playlists = await getPlaylists();
+  
+      const newPlaylist = {
+        id: Date.now().toString(),
+        userId: req.user.userId,
+        title,
+        description,
+        tracks,
+      };
+  
+      playlists.push(newPlaylist);
+      await savePlaylists(playlists);
+  
+      res.status(201).json(newPlaylist);
+    } catch (error) {
+      res.status(500).json({error: "Failed to create playlist"});
+    }
+});
 
 
 app.post("/register", async (req, res) => {
