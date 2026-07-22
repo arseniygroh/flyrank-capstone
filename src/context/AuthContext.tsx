@@ -16,7 +16,7 @@ type AuthContextType = {
   isHydrated: boolean;
 };
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);;
@@ -49,16 +49,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       router.push("/login");
     };
-  
+
+    const value = {
+        user,
+        token,
+        login,
+        logout,
+        isHydrated
+    }
+
     return (
-        {children}
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
     );
   }
   
-  export function useAuth() {
+export function useAuth() {
     const context = useContext(AuthContext);
-    if (context === undefined) {
-      throw new Error("useAuth must be used within an AuthProvider");
+    if (context === null) {
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
-  }
+}
