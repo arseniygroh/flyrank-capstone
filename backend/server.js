@@ -9,6 +9,18 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
+
 const DB_PATH = path.join(__dirname, "data/users.json");
 const JWT_SECRET = "super_secret_key"; 
 const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
@@ -100,6 +112,4 @@ app.post("/login", async (req, res) => {
     }
 });
   
-app.listen(5000, () => {
-    console.log("Auth server running on http://localhost:5000");
-});
+app.listen(5001);
