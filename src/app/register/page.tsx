@@ -144,6 +144,9 @@ export default function RegisterPage() {
             Sign in
           </Link>
         </p>
+        <Link href="/" className="text-white hover:underline font-medium">
+            Home
+        </Link>
       </div>
     </div>
   );

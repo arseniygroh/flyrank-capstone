@@ -100,6 +100,9 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
+        <Link href="/" className="text-white hover:underline font-medium">
+            Home
+        </Link>
       </div>
     </div>
   );
