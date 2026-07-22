@@ -22,9 +22,28 @@ app.use((req, res, next) => {
 });
 
 const DB_PATH = path.join(__dirname, "data/users.json");
+const PLAYLISTS_DB = path.join(__dirname, "data/playlists.json");
 const JWT_SECRET = "super_secret_key"; 
 const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z\d@$!%*?&]{8,}$/
+
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; 
+  
+    if (!token) {
+      return res.status(401).json({error: "Access denied. No token provided."});
+    }
+  
+    jwt.verify(token, JWT_SECRET, (err, decodedUser) => {
+      if (err) {
+        return res.status(403).json({error: "Invalid or expired token."});
+      }
+      req.user = decodedUser; 
+      next(); 
+    });
+  }
+
 
 async function getUsers() {
   const data = await fs.readFile(DB_PATH, "utf8");
