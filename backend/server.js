@@ -59,6 +59,17 @@ async function savePlaylists(playlists) {
     await fs.writeFile(PLAYLISTS_DB, JSON.stringify(playlists, null, 2));
 }
 
+app.get("/playlists", authenticateToken, async (req, res) => {
+    try {
+      const allPlaylists = await getPlaylists();
+      const userPlaylists = allPlaylists.filter(p => p.userId === req.user.userId);
+      res.json(userPlaylists);
+    } catch (error) {
+      res.status(500).json({error: "Failed to fetch playlists"});
+    }
+  });
+
+
 app.post("/register", async (req, res) => {
     try {
       const { username, email, password, confirmPassword } = req.body;
