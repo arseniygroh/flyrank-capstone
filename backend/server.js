@@ -46,8 +46,17 @@ function authenticateToken(req, res, next) {
 
 
 async function getUsers() {
-  const data = await fs.readFile(DB_PATH, "utf8");
-  return JSON.parse(data);
+    const data = await fs.readFile(DB_PATH, "utf8");
+    return JSON.parse(data);
+}
+
+async function getPlaylists() {
+    const data = await fs.readFile(PLAYLISTS_DB, "utf8");
+    return JSON.parse(data);
+}
+  
+async function savePlaylists(playlists) {
+    await fs.writeFile(PLAYLISTS_DB, JSON.stringify(playlists, null, 2));
 }
 
 app.post("/register", async (req, res) => {
