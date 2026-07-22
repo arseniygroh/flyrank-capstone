@@ -9,11 +9,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  PLAYLISTS_STORAGE_KEY,
-  createPlaylistFromForm,
-} from "@/lib/playlists";
 import type { Playlist, PlaylistFormData, PlaylistTrack } from "@/types/playlist";
+import { useAuth } from "./AuthContext";
 
 type PlaylistsContextValue = {
   playlists: Playlist[];
@@ -22,10 +19,10 @@ type PlaylistsContextValue = {
   currentTrack: PlaylistTrack | null;
   setCurrentTrack: (track: PlaylistTrack | null) => void;
   getPlaylist: (id: string) => Playlist | undefined;
-  createPlaylist: (formData: PlaylistFormData) => Playlist;
-  updatePlaylist: (playlist: Playlist) => void;
-  deletePlaylist: (id: string) => void;
-  addTrackToPlaylist: (playlistId: string, track: any) => void;
+  createPlaylist: (formData: PlaylistFormData) => Promise<Playlist | undefined>;
+  updatePlaylist: (playlist: Playlist) => Promise<void>;
+  deletePlaylist: (id: string) => Promise<void>;
+  addTrackToPlaylist: (playlistId: string, track: PlaylistTrack) => Promise<void>;
   pauseTrack: () => void;
   setCurrentTrackAndPlay: (track: PlaylistTrack | null) => void;
   resumeTrack: () => void;
@@ -34,71 +31,141 @@ type PlaylistsContextValue = {
 const PlaylistsContext = createContext<PlaylistsContextValue | null>(null);
 
 export function PlaylistsProvider({ children }: { children: ReactNode }) {
+  const { user, isHydrated: authHydrated, token } = useAuth();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [currentTrack, setCurrentTrack] = useState<PlaylistTrack | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(PLAYLISTS_STORAGE_KEY);
-      if (saved) {
-        setPlaylists(JSON.parse(saved) as Playlist[]);
-      }
-    } catch {
+    if (!authHydrated) return; 
+    if (!user || !token) {
       setPlaylists([]);
+      setHydrated(true);
+      return;
     }
-    setHydrated(true);
-  }, []);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem(PLAYLISTS_STORAGE_KEY, JSON.stringify(playlists));
-  }, [playlists, hydrated]);
+    const fetchPlaylists = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/playlists", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setPlaylists(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch playlists:", error);
+      } finally {
+        setHydrated(true);
+      }
+    };
+
+    fetchPlaylists();
+  }, [user, authHydrated, token]);
 
   const getPlaylist = useCallback(
     (id: string) => playlists.find((p) => p.id === id),
     [playlists]
   );
 
-  const createPlaylist = useCallback((formData: PlaylistFormData) => {
-    const playlist = createPlaylistFromForm(formData) as Playlist;
-    setPlaylists((prev) => [...prev, playlist]);
-    return playlist;
-  }, []);
+  const createPlaylist = useCallback(async (formData: PlaylistFormData) => {
+    if (!token) return;
+    
+    try {
+      const res = await fetch("http://localhost:5000/playlists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-  const updatePlaylist = useCallback((updated: Playlist) => {
-    setPlaylists((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    );
-  }, []);
+      if (res.ok) {
+        const newPlaylist = await res.json();
+        setPlaylists((prev) => [...prev, newPlaylist]);
+        return newPlaylist;
+      }
+    } catch (error) {
+      console.error("Error creating playlist", error);
+    }
+  }, [token]);
 
-  const deletePlaylist = useCallback((id: string) => {
-    setPlaylists((prev) => prev.filter((p) => p.id !== id));
-  }, []);
+  const deletePlaylist = useCallback(async (id: string) => {
+    if (!token) return;
 
-  const pauseTrack = useCallback(() => {
-    setIsPaused(true);
-  }, []);
+    try {
+      const res = await fetch(`http://localhost:5000/playlists/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  const resumeTrack = useCallback(() => {
-    setIsPaused(false);
-  }, []);
+      if (res.ok) {
+        setPlaylists((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting playlist", error);
+    }
+  }, [token]);
 
+  const addTrackToPlaylist = useCallback(async (playlistId: string, track: PlaylistTrack) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ track }),
+      });
+
+      if (res.ok) {
+        const updatedPlaylist = await res.json();
+        setPlaylists((prev) =>
+          prev.map((p) => (p.id === playlistId ? updatedPlaylist : p))
+        );
+      }
+    } catch (error) {
+      console.error("Error adding track", error);
+    }
+  }, [token]);
+
+  const updatePlaylist = useCallback(async (updated: Playlist) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/playlists/${updated.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updated),
+      });
+
+      if (res.ok) {
+        setPlaylists((prev) =>
+          prev.map((p) => (p.id === updated.id ? updated : p))
+        );
+      }
+    } catch (error) {
+      console.error("Error updating playlist", error);
+    }
+  }, [token]);
+
+  const pauseTrack = useCallback(() => setIsPaused(true), []);
+  const resumeTrack = useCallback(() => setIsPaused(false), []);
   const setCurrentTrackAndPlay = useCallback((track: PlaylistTrack | null) => {
     setCurrentTrack(track);
     setIsPaused(false);
-  }, []);
-  
-  const addTrackToPlaylist = useCallback((playlistId: string, track: PlaylistTrack) => {
-    setPlaylists(prev =>
-      prev.map(playlist => {
-        if (playlist.id !== playlistId) return playlist;
-        const exists = playlist.tracks.some(t => t.trackId === track.trackId);
-        if (exists) return playlist;
-        return { ...playlist, tracks: [...playlist.tracks, track] };
-      })
-    );
   }, []);
 
   const value = useMemo(
@@ -118,18 +185,8 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       resumeTrack
     }),
     [
-      playlists,
-      hydrated,
-      isPaused,
-      currentTrack,
-      getPlaylist,
-      createPlaylist,
-      updatePlaylist,
-      deletePlaylist,
-      addTrackToPlaylist,
-      pauseTrack,
-      setCurrentTrackAndPlay,
-      resumeTrack
+      playlists, hydrated, isPaused, currentTrack, getPlaylist, createPlaylist, 
+      updatePlaylist, deletePlaylist, addTrackToPlaylist, pauseTrack, setCurrentTrackAndPlay, resumeTrack
     ]
   );
 

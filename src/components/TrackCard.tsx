@@ -3,7 +3,7 @@ import { useState } from "react";
 import { usePlaylists } from "@/context/PlaylistsContext";
 import type { PlaylistTrack } from "@/types/playlist";
 
-export default function TrackCard({track}: {track: PlaylistTrack | null}) {
+export default function TrackCard({track}: {track: PlaylistTrack}) {
   const {setCurrentTrackAndPlay, playlists, addTrackToPlaylist, isPaused, pauseTrack, currentTrack, resumeTrack} = usePlaylists();
  
   const [showDropdown, setShowDropdown] = useState(false);
