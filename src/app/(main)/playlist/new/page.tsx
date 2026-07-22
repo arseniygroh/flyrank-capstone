@@ -10,9 +10,9 @@ export default function NewPlaylistPage() {
   const router = useRouter();
   const { createPlaylist } = usePlaylists();
 
-  function handleSubmit(formData: PlaylistFormData) {
-    const playlist = createPlaylist(formData);
-    router.push(`/playlist/${playlist.id}`);
+  async function handleSubmit(formData: PlaylistFormData) {
+    const playlist = await createPlaylist(formData);
+    router.push(`/playlist/${playlist?.id}`);
   }
 
   return (

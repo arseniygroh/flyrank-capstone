@@ -95,6 +95,29 @@ app.post("/playlists", authenticateToken, async (req, res) => {
     }
 });
 
+app.delete("/playlists/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      let playlists = await getPlaylists();
+
+      const playlistIndex = playlists.findIndex(p => p.id === id);
+      if (playlistIndex === -1) {
+        return res.status(404).json({ error: "Playlist not found" });
+      }
+  
+      if (playlists[playlistIndex].userId !== req.user.userId) {
+        return res.status(403).json({ error: "Unauthorized to delete this playlist" });
+      }
+      
+      playlists.splice(playlistIndex, 1);
+      await savePlaylists(playlists);
+  
+      res.status(200).json({ message: "Playlist deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
 
 app.post("/register", async (req, res) => {
     try {
