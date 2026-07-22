@@ -148,6 +148,36 @@ app.put("/playlists/:id", authenticateToken, async (req, res) => {
     }
 });
 
+app.post("/playlists/:id/tracks", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { track } = req.body;
+      const playlists = await getPlaylists();
+  
+      const playlist = playlists.find(p => p.id === id);
+      
+      if (!playlist) {
+        return res.status(404).json({ error: "Playlist not found" });
+      }
+  
+      if (playlist.userId !== req.user.userId) {
+        return res.status(403).json({ error: "Unauthorized to edit this playlist" });
+      }
+
+      const trackExists = playlist.tracks.some(t => t.trackId === track.trackId);
+      if (trackExists) {
+        return res.status(400).json({ error: "Track already exists in playlist" });
+      }
+  
+      playlist.tracks.push(track);
+      await savePlaylists(playlists);
+  
+      res.json(playlist);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 app.post("/register", async (req, res) => {
     try {
