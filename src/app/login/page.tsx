@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { API_URL } from "@/context/PlaylistsContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function LoginPage() {
     const data = Object.fromEntries(dataRaw);
 
     try {
-      const res = await fetch("http://localhost:5000/login", {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,7 +101,7 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
-        <Link href="/" className="text-white hover:underline font-medium">
+        <Link href="/" className="text-white text-center hover:underline font-medium">
             Home
         </Link>
       </div>

@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: "http://localhost:3000", 
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 const DB_PATH = path.join(__dirname, "data/users.json");

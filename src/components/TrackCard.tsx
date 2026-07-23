@@ -40,11 +40,27 @@ export default function TrackCard({track}: {track: PlaylistTrack}) {
         />
         <button
           onClick={handleTogglePlay}
-          className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full flex items-center justify-center
+          className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full
                     opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100
-                    transition-opacity text-black text-xl pl-1"
+                    transition-opacity text-black"
         >
-          {showPauseIcon ? "⏸" : "▶"}
+          {showPauseIcon ? (
+            <svg
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              className="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2"
+            >
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          ) : (
+            <svg
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              className="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-[calc(50%)] translate-x-[calc(-50%+1px)]"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
         </button>
       </div>
       

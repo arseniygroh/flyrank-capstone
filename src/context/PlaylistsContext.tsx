@@ -12,6 +12,8 @@ import {
 import type { Playlist, PlaylistFormData, PlaylistTrack } from "@/types/playlist";
 import { useAuth } from "./AuthContext";
 
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+
 type PlaylistsContextValue = {
   playlists: Playlist[];
   hydrated: boolean;
@@ -47,7 +49,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
 
   const fetchPlaylists = async () => {
       try {
-        const res = await fetch("http://localhost:5000/playlists", {
+        const res = await fetch(`${API_URL}/playlists`, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -76,7 +78,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     if (!token) return;
     
     try {
-      const res = await fetch("http://localhost:5000/playlists", {
+      const res = await fetch(`${API_URL}/playlists`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +101,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/playlists/${id}`, {
+      const res = await fetch(`${API_URL}/playlists/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -118,7 +120,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/playlists/${playlistId}/tracks`, {
+      const res = await fetch(`${API_URL}/${playlistId}/tracks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +144,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/playlists/${updated.id}`, {
+      const res = await fetch(`${API_URL}/playlists/${updated.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

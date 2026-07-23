@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { API_URL } from "@/context/PlaylistsContext";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function RegisterPage() {
     const data = Object.fromEntries(dataRaw);
 
     try {
-      const res = await fetch("http://localhost:5000/register", {
+      const res = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +145,7 @@ export default function RegisterPage() {
             Sign in
           </Link>
         </p>
-        <Link href="/" className="text-white hover:underline font-medium">
+        <Link href="/" className="text-white text-center hover:underline font-medium">
             Home
         </Link>
       </div>
