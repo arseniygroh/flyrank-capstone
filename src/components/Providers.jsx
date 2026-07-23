@@ -8,7 +8,7 @@ export default function Providers({ children }) {
     <AuthProvider>
       <PlaylistsProvider>
           {children}
-        </PlaylistsProvider>;
+      </PlaylistsProvider>;
     </AuthProvider>
   )
 }

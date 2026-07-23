@@ -22,7 +22,7 @@ function isFormValid({ name, privacy, description }: PlaylistFormData) {
 }
 
 type PlaylistFormProps = {
-  onSubmit?: (data: PlaylistFormData) => void;
+  onSubmit?: (data: PlaylistFormData) => void | Promise<void>;
   initialData?: Playlist;
   onCancel?: () => void;
 };
@@ -43,22 +43,27 @@ export default function PlaylistForm({
 
   const nameTooShort = name.length > 0 && name.trim().length < 3;
   const descriptionRequired = isDescriptionRequired(privacy);
+  const descriptionMissing = descriptionRequired && description.trim().length === 0;
   const formValid = isFormValid({ name, privacy, description });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsTouched(true);
-    if (!formValid) {
-      return;
-    }
+    if (!formValid || isSubmitting) return;
 
-    onSubmit?.({ name: name.trim(), privacy, description: description.trim() });
-
-    if (!initialData) {
-      setName("");
-      setPrivacy("Private");
-      setDescription("");
-      setIsTouched(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmit?.({ name: name.trim(), privacy, description: description.trim() });
+      if (!initialData) {
+        setName("");
+        setPrivacy("Private");
+        setDescription("");
+        setIsTouched(false);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -127,15 +132,20 @@ export default function PlaylistForm({
           onChange={(event) => setDescription(event.target.value)}
           aria-required={descriptionRequired}
         />
+        {descriptionMissing && isTouched && (
+          <p role="alert" className="mt-1 text-sm text-red-500">
+            A description is required for {privacy.toLowerCase()} playlists.
+          </p>
+        )}
       </div>
 
       <button
         className="mt-4 w-full rounded-full bg-green-500 py-3 font-bold text-black transition-colors hover:bg-green-400 disabled:cursor-not-allowed disabled:bg-neutral-600 disabled:text-neutral-400"
         type="submit"
-        disabled={!formValid}
-        aria-disabled={!formValid}
+        disabled={!formValid || isSubmitting}
+        aria-disabled={!formValid || isSubmitting}
       >
-        {initialData ? "Save Changes" : "Create Playlist"}
+        {isSubmitting ? "Saving…" : initialData ? "Save Changes" : "Create Playlist"}
       </button>
       {initialData && onCancel && (
         <button

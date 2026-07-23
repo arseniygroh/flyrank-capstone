@@ -45,11 +45,11 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const fetchPlaylists = async () => {
+  const fetchPlaylists = async () => {
       try {
         const res = await fetch("http://localhost:5000/playlists", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -62,7 +62,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       } finally {
         setHydrated(true);
       }
-    };
+  };
 
     fetchPlaylists();
   }, [user, authHydrated, token]);
@@ -80,14 +80,14 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
         const newPlaylist = await res.json();
-        setPlaylists((prev) => [...prev, newPlaylist]);
+        setPlaylists(prev => [...prev, newPlaylist]);
         return newPlaylist;
       }
     } catch (error) {
@@ -102,12 +102,12 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`http://localhost:5000/playlists/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
       });
 
       if (res.ok) {
-        setPlaylists((prev) => prev.filter((p) => p.id !== id));
+        setPlaylists(prev => prev.filter((p) => p.id !== id));
       }
     } catch (error) {
       console.error("Error deleting playlist", error);
@@ -122,7 +122,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ track }),
       });
@@ -146,15 +146,14 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(updated),
       });
 
       if (res.ok) {
-        setPlaylists((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p))
-        );
+        const savedPlaylist = await res.json();
+        setPlaylists((prev) => prev.map((p) => (p.id === savedPlaylist.id ? savedPlaylist : p)));
       }
     } catch (error) {
       console.error("Error updating playlist", error);
