@@ -1,8 +1,9 @@
 "use client";
+import { usePlaylists } from "@/context/PlaylistsContext";
 import TrackSearch from "./TrackSearch";
 
 export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay}) {
-    
+    const { setCurrentTrackList } = usePlaylists();
     function handleAddTrack(newTrack) {
         const trackExists = playlist.tracks.some(t => t.trackId === newTrack.trackId);
         
@@ -28,6 +29,7 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
 
     function handlePlayTrack(track) {
         onPlay(track);
+        setCurrentTrackList(playlist.tracks);
     }
 
     return (
@@ -92,6 +94,5 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
             </div>
             <TrackSearch onAdd={handleAddTrack} />
         </article>
-        
     )
 }

@@ -19,7 +19,9 @@ type PlaylistsContextValue = {
   hydrated: boolean;
   isPaused: boolean;
   currentTrack: PlaylistTrack | null;
+  currentTrackList: PlaylistTrack[] | null;
   setCurrentTrack: (track: PlaylistTrack | null) => void;
+  setCurrentTrackList: (tracks: PlaylistTrack[] | null) => void;
   getPlaylist: (id: string) => Playlist | undefined;
   createPlaylist: (formData: PlaylistFormData) => Promise<Playlist | undefined>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
@@ -36,6 +38,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   const { user, isHydrated: authHydrated, token } = useAuth();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [currentTrack, setCurrentTrack] = useState<PlaylistTrack | null>(null);
+  const [currentTrackList, setCurrentTrackList] = useState<PlaylistTrack[] | null>([]);
   const [hydrated, setHydrated] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -176,8 +179,10 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       playlists,
       hydrated,
       currentTrack,
+      currentTrackList,
       isPaused,
       setCurrentTrack,
+      setCurrentTrackList,
       getPlaylist,
       createPlaylist,
       updatePlaylist,

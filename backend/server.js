@@ -14,6 +14,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
+const PORT = process.env.PORT || 5000;
 const DB_PATH = path.join(__dirname, "data/users.json");
 const PLAYLISTS_DB = path.join(__dirname, "data/playlists.json");
 const JWT_SECRET = "super_secret_key"; 
@@ -255,4 +256,4 @@ app.post("/login", async (req, res) => {
     }
 });
   
-app.listen(5000);
+app.listen(PORT);

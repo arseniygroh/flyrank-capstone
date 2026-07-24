@@ -58,7 +58,7 @@ export default function TrackCarousel({tracks: initialTracks, term}: {tracks: an
     >
       {tracks.map((track) => (
         <SwiperSlide key={track.trackId} style={{ width: "auto" }}>
-          <TrackCard track={track} />
+          <TrackCard track={track} tracks={tracks} />
         </SwiperSlide>
       ))}
     </Swiper>

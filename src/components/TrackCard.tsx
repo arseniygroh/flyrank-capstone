@@ -3,8 +3,8 @@ import { useState } from "react";
 import { usePlaylists } from "@/context/PlaylistsContext";
 import type { PlaylistTrack } from "@/types/playlist";
 
-export default function TrackCard({track}: {track: PlaylistTrack}) {
-  const {setCurrentTrackAndPlay, playlists, addTrackToPlaylist, isPaused, pauseTrack, currentTrack, resumeTrack} = usePlaylists();
+export default function TrackCard({track, tracks}: {track: PlaylistTrack, tracks: PlaylistTrack[]}) {
+  const {setCurrentTrackAndPlay, playlists, addTrackToPlaylist, isPaused, pauseTrack, currentTrack, resumeTrack, setCurrentTrackList} = usePlaylists();
  
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -13,6 +13,7 @@ export default function TrackCard({track}: {track: PlaylistTrack}) {
   const showPauseIcon = isCurrentTrack && !isPaused;
   
   const handleTogglePlay = () => {
+    setCurrentTrackList(tracks);
     if (isCurrentTrack) {
       isPaused ? resumeTrack() : pauseTrack();
     } else {

@@ -3,9 +3,8 @@
 import { useRef, useEffect, useState } from "react";
 import { usePlaylists } from "@/context/PlaylistsContext";
 
-export default function Player({track}) {
-  
-  const { isPaused, pauseTrack, resumeTrack } = usePlaylists(); 
+export default function Player({ track }) {
+  const {isPaused, pauseTrack, resumeTrack, currentTrackList, setCurrentTrackAndPlay} = usePlaylists();
   const playerRef = useRef(null);
   const progressRef = useRef();
   const [progress, setProgress] = useState(0);
@@ -46,11 +45,39 @@ export default function Player({track}) {
   const handleProgressClick = (e) => {
     const width = progressRef.current.clientWidth;
     const clickX = e.nativeEvent.offsetX;
-    const duration = playerRef.current.duration;
-    
-    playerRef.current.currentTime = (clickX / width) * duration;
+    const trackDuration = playerRef.current.duration;
+    playerRef.current.currentTime = (clickX / width) * trackDuration;
+  };
 
-  }
+  const currentIndex = currentTrackList.findIndex(
+    (t) => t.trackId === track?.trackId
+  );
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex !== -1 && currentIndex < currentTrackList.length - 1;
+
+  const handleNext = () => {
+    if (hasNext) {
+      setCurrentTrackAndPlay(currentTrackList[currentIndex + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (playerRef.current && playerRef.current.currentTime > 3) {
+      playerRef.current.currentTime = 0;
+      return;
+    }
+    if (hasPrev) {
+      setCurrentTrackAndPlay(currentTrackList[currentIndex - 1]);
+    }
+  };
+
+  const handleEnded = () => {
+    if (hasNext) {
+      setCurrentTrackAndPlay(currentTrackList[currentIndex + 1]);
+    } else {
+      pauseTrack();
+    }
+  };
 
   if (!track) return null;
 
@@ -67,6 +94,7 @@ export default function Player({track}) {
           <p className="text-neutral-400 text-sm">{track.artistName}</p>
         </div>
       </div>
+
       <div className="w-full md:w-1/3 flex flex-col items-center justify-center gap-2">
         <audio
           key={track.trackId}
@@ -75,34 +103,62 @@ export default function Player({track}) {
           autoPlay
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          onEnded={() => pauseTrack(true)}
-          className="hidden" 
+          onEnded={handleEnded}
+          className="hidden"
         />
-        <button
-          onClick={() => isPaused ? resumeTrack() : pauseTrack()}
-          className="w-10 h-10 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shrink-0"
-        >
-          {isPaused ? (
-            <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 ml-1">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          ) : (
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handlePrev}
+            disabled={!hasPrev && (!playerRef.current || playerRef.current.currentTime <= 3)}
+            className="w-8 h-8 flex items-center justify-center text-white hover:scale-105 transition-transform shrink-0 disabled:opacity-30 disabled:hover:scale-100"
+            aria-label="Previous track"
+          >
             <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
             </svg>
-          )}
-        </button>
+          </button>
+
+          <button
+            onClick={() => (isPaused ? resumeTrack() : pauseTrack())}
+            className="w-10 h-10 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shrink-0"
+            aria-label={isPaused ? "Play" : "Pause"}
+          >
+            {isPaused ? (
+              <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 ml-1">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            ) : (
+              <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            )}
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={!hasNext}
+            className="w-8 h-8 flex items-center justify-center text-white hover:scale-105 transition-transform shrink-0 disabled:opacity-30 disabled:hover:scale-100"
+            aria-label="Next track"
+          >
+            <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+              <path d="M16 6h2v12h-2zM6 6v12l8.5-6z" />
+            </svg>
+          </button>
+        </div>
+
         <div className="flex items-center gap-2 w-full max-w-md text-xs text-neutral-400 font-mono">
           <span>{currentTime}</span>
-          <div 
+          <div
             onClick={handleProgressClick}
             ref={progressRef}
-            className="h-1.5 flex-1 bg-neutral-800 rounded-full overflow-hidden">
+            className="h-1.5 flex-1 bg-neutral-800 rounded-full overflow-hidden cursor-pointer"
+          >
             <div
-              className="h-full bg-white rounded-full pointer"
-              style={{width: `${progress}%`}}
+              className="h-full bg-white rounded-full"
+              style={{ width: `${progress}%` }}
             />
-            </div>
+          </div>
           <span>{duration}</span>
         </div>
       </div>
