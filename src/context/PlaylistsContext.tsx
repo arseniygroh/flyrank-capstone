@@ -48,6 +48,8 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     }
 
   const fetchPlaylists = async () => {
+    console.log(API_URL);
+    
       try {
         const res = await fetch(`${API_URL}/playlists`, {
           headers: {

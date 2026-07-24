@@ -242,9 +242,11 @@ app.post("/login", async (req, res) => {
       const token = jwt.sign({userId: user.id, email: user.email}, JWT_SECRET, {
         expiresIn: "24h",
       });
-  
+      const exprirationDate = new Date();
+      exprirationDate.setHours(exprirationDate.getHours() + 24);
       res.json({ 
-        token, 
+        token,
+        exprirationDate, 
         email: user.email, 
         username: user.username 
     });
@@ -253,4 +255,4 @@ app.post("/login", async (req, res) => {
     }
 });
   
-app.listen(process.env.PORT);
+app.listen(5000);

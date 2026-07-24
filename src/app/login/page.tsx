@@ -34,8 +34,8 @@ export default function LoginPage() {
       if (!res.ok) {
         throw new Error(resData.error || "Login failed");
       }
-
-      login(resData.token, {
+      
+      login(resData.token, new Date(resData.exprirationDate), {
         email: resData.email,
         username: resData.username,
       });
