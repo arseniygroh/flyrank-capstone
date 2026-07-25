@@ -39,6 +39,7 @@ export default function AppShell({ children }) {
           <nav className="flex flex-row md:flex-col gap-4 pb-2 md:pb-0">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/playlist/new">New playlist</NavLink>
+            <NavLink href="/chat">AI</NavLink>
           </nav>
           <div className="flex-1 overflow-y-auto min-h-[100px]">
             {hydrated ? (
