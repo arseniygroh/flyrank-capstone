@@ -8,10 +8,27 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  /^https:\/\/flyrank-capstone-.*-arseniygrohs-projects\.vercel\.app$/, 
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); 
+    
+    const isAllowed = allowedOrigins.some((allowed) =>
+      typeof allowed === "string" ? allowed === origin : allowed.test(origin)
+    );
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 const PORT = process.env.PORT || 5000;
