@@ -11,7 +11,7 @@ const suggestions = [
 ];
 
 export default function ChatPage() {
-  const {messages, sendMessage, status, stop, error, reload} = useChat();
+  const {messages, sendMessage, status, stop, error, regenerate} = useChat();
   const [input, setInput] = useState("");
 
   const isLoading = status === 'submitted' || status === 'streaming';
@@ -119,7 +119,7 @@ export default function ChatPage() {
               The network failed or the API limit was reached.
             </div>
             <button
-              onClick={() => reload()}
+              onClick={() => regenerate()}
               className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full text-sm font-bold hover:bg-red-500/30 transition-colors whitespace-nowrap"
             >
               Try Again
