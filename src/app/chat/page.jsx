@@ -15,7 +15,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
 
   const isLoading = status === 'submitted' || status === 'streaming';
-
+    
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
