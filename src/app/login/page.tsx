@@ -20,6 +20,8 @@ export default function LoginPage() {
     const dataRaw = new FormData(e.currentTarget);
     const data = Object.fromEntries(dataRaw);
 
+    console.log(API_URL);
+    
     try {
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",

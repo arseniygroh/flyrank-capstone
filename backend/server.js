@@ -4,14 +4,16 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const fs = require("fs").promises;
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, 
-  /^https:\/\/flyrank-capstone-.*-arseniygrohs-projects\.vercel\.app$/, 
-];
+  process.env.FRONTEND_URL,
+  "http://localhost:3000",
+  /^https:\/\/flyrank-capstone-.*-arseniygrohs-projects\.vercel\.app$/,
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {

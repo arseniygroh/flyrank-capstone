@@ -112,7 +112,20 @@ export default function ChatPage() {
             })}
           </div>
         ))}
-
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+            <div className="text-red-400 text-sm">
+              <strong className="block text-red-300 mb-1">Searching is interrupted</strong>
+              The network failed or the API limit was reached.
+            </div>
+            <button
+              onClick={() => reload()}
+              className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full text-sm font-bold hover:bg-red-500/30 transition-colors whitespace-nowrap"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="p-4 lg:p-6 bg-neutral-900 border-t border-neutral-800 shrink-0">
