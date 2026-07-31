@@ -4,22 +4,24 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { API_URL } from "@/context/PlaylistsContext";
+import StatefulButton from "@/components/StatefulButton";
 
 export default function RegisterPage() {
   const router = useRouter();
-  
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [serverError, setServerError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsSubmitting(true);
+  async function handleRegister() {
     setServerError("");
     setFieldErrors({});
 
-    const dataRaw = new FormData(e.currentTarget);
-    const data = Object.fromEntries(dataRaw);
+    const data = { username, email, password, confirmPassword };
 
     try {
       const res = await fetch(`${API_URL}/register`, {
@@ -34,7 +36,7 @@ export default function RegisterPage() {
 
       if (res.status === 422) {
         setFieldErrors(responseData);
-        return;
+        throw new Error("Validation failed");
       }
 
       if (!res.ok) {
@@ -44,9 +46,10 @@ export default function RegisterPage() {
       router.push("/login");
       
     } catch (err: any) {
-      setServerError(err.message);
-    } finally {
-      setIsSubmitting(false);
+      if (err.message !== "Validation failed") {
+        setServerError(err.message);
+      }
+      throw err;
     }
   }
 
@@ -57,8 +60,7 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold text-white mb-2">Create an account</h1>
           <p className="text-neutral-400">Join to our music lovers community</p>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          
+        <div className="flex flex-col gap-4">  
           {serverError && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg text-sm text-center">
               {serverError}
@@ -71,9 +73,9 @@ export default function RegisterPage() {
             </label>
             <input
               type="text"
-              required
               id="username"
-              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className={`bg-neutral-800 border ${fieldErrors.username ? 'border-red-500' : 'border-neutral-700'} text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors`}
               placeholder="cooluser123"
             />
@@ -88,9 +90,9 @@ export default function RegisterPage() {
             </label>
             <input
               type="email"
-              required
               id="email"
-              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className={`bg-neutral-800 border ${fieldErrors.email ? 'border-red-500' : 'border-neutral-700'} text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors`}
               placeholder="name@example.com"
             />
@@ -105,9 +107,9 @@ export default function RegisterPage() {
             </label>
             <input
               type="password"
-              required
               id="password"
-              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className={`bg-neutral-800 border ${fieldErrors.password ? 'border-red-500' : 'border-neutral-700'} text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors`}
             />
             {fieldErrors.password && (
@@ -115,37 +117,30 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mb-4">
             <label htmlFor="confirmPassword" className="text-sm font-medium text-neutral-300">
               Confirm Password
             </label>
             <input
               type="password"
-              required
               id="confirmPassword"
-              name="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className={`bg-neutral-800 border ${fieldErrors.confirmPassword ? 'border-red-500' : 'border-neutral-700'} text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors`}
             />
             {fieldErrors.confirmPassword && (
               <p className="text-red-500 text-xs mt-1">{fieldErrors.confirmPassword}</p>
             )}
           </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-4 w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? "Creating account..." : "Sign up"}
-          </button>
-        </form>
-
+          <StatefulButton onClick={handleRegister} idleText="Sign up" />
+        </div>
         <p className="mt-6 text-center text-sm text-neutral-400">
           Already have an account?{" "}
           <Link href="/login" className="text-white hover:underline font-medium">
             Sign in
           </Link>
         </p>
-        <Link href="/" className="text-white text-center hover:underline font-medium">
+        <Link href="/" className="text-white text-center hover:underline font-medium block mt-2">
             Home
         </Link>
       </div>
