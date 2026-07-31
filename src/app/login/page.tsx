@@ -5,30 +5,24 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { API_URL } from "@/context/PlaylistsContext";
+import StatefulButton from "@/components/StatefulButton";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsSubmitting(true);
+  async function handleLogin() {
     setError("");
-
-    const dataRaw = new FormData(e.currentTarget);
-    const data = Object.fromEntries(dataRaw);
-
-    console.log(API_URL);
-    
     try {
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email, password }),
       });
 
       const resData = await res.json();
@@ -44,8 +38,7 @@ export default function LoginPage() {
       router.push("/");
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setIsSubmitting(false);
+      throw err;
     }
   }
 
@@ -56,16 +49,17 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
           <p className="text-neutral-400">Sign in to get better experience</p>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-medium text-neutral-300">
               Email
             </label>
             <input
               type="email"
-              required
               id="email"
-              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="bg-neutral-800 border border-neutral-700 text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors"
               placeholder="name@example.com"
             />
@@ -76,9 +70,9 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
-              required
               id="password"
-              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="bg-neutral-800 border border-neutral-700 text-white p-3 rounded-lg outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors"
               placeholder="••••••••"
             />
@@ -88,14 +82,8 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-2 w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+          <StatefulButton onClick={handleLogin} idleText="Login" />
+        </div>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
           Don't have an account?{" "}
@@ -103,7 +91,7 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
-        <Link href="/" className="text-white text-center hover:underline font-medium">
+        <Link href="/" className="text-white text-center hover:underline font-medium block mt-2">
             Home
         </Link>
       </div>

@@ -6,12 +6,7 @@ import { Loader2, Check, AlertCircle } from "lucide-react";
 
 type ButtonState = "idle" | "loading" | "success" | "error";
 
-interface StatefulButtonProps {
-  onClick: () => Promise<void>;
-  idleText?: string;
-}
-
-export default function StatefulButton({ onClick, idleText = "+ Add to playlist" }: StatefulButtonProps) {
+export default function StatefulButton({onClick, idleText = "+ Add to playlist"}: {onClick: any, idleText?: string}) {
   const [state, setState] = useState<ButtonState>("idle");
   const shouldReduceMotion = useReducedMotion();
 
@@ -48,6 +43,7 @@ export default function StatefulButton({ onClick, idleText = "+ Add to playlist"
 
   return (
     <motion.button
+      type="button"
       layout 
       onClick={handleClick}
       disabled={state === "loading"}
