@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Plus, Loader2, Check, AlertCircle } from "lucide-react";
+import { Loader2, Check, AlertCircle } from "lucide-react";
 
 type ButtonState = "idle" | "loading" | "success" | "error";
 
@@ -67,7 +67,6 @@ export default function StatefulButton({ onClick, idleText = "+ Add to playlist"
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2"
           >
-            <Plus size={16} strokeWidth={3} />
             <span>{idleText}</span>
           </motion.div>
         )}
