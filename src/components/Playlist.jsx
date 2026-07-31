@@ -15,6 +15,7 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
             onUpdate(updatedPlaylist);
         } else {
             alert("You already have this track in your playlist");
+            throw new Error("Track exists in playlist");
         }
     }
 

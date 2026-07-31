@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
+import StatefulButton from "@/components/StatefulButton";
 
 export default function TrackSearch({onAdd}) {
-    const [isFetching, setIsFetching] = useState(false);
+
     const [data, setData] = useState([]);
     const [query, setQuery] = useState("");
     const [error, setError] = useState("");
@@ -11,12 +12,8 @@ export default function TrackSearch({onAdd}) {
         setQuery(e.target.value);
     } 
 
-    async function handleSearch(e) {
-        e.preventDefault(); 
-    
+    async function handleSearch() {
         if (!query.trim()) return; 
-
-        setIsFetching(true);
         setError("");
         
         try {
@@ -29,17 +26,16 @@ export default function TrackSearch({onAdd}) {
             
             const result = await res.json();
             setData(result.results); 
+            setQuery("");
         } catch (err) {
             setError(err.message);
-        } finally {
-            setIsFetching(false); 
-            setQuery("");
+            throw err;
         }
     }
 
     return (
         <div className="mt-8">
-            <form onSubmit={handleSearch} className="flex gap-4 items-end mb-6">
+            <div className="flex gap-4 items-end mb-6">
                 <div className="flex-1 flex flex-col gap-2">
                     <label htmlFor="query" className="text-sm font-bold tracking-widest uppercase text-neutral-400">
                         Add Tracks
@@ -49,19 +45,13 @@ export default function TrackSearch({onAdd}) {
                         type="text" 
                         value={query} 
                         onChange={handleInputChange} 
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         placeholder="Search for a song or artist..."
                         className="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-white transition-colors"
-                        required 
                     />
                 </div>
-                <button 
-                    type="submit" 
-                    disabled={isFetching}
-                    className="bg-white text-black font-bold py-3 px-6 rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-50"
-                >
-                    {isFetching ? "Searching..." : "Search"}
-                </button>
-            </form>
+                <StatefulButton onClick={handleSearch} idleText="Search" />
+            </div>
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
         
@@ -72,9 +62,10 @@ export default function TrackSearch({onAdd}) {
                             <p className="font-bold text-white">{track.trackName}</p>
                             <p className="text-sm text-neutral-400">{track.artistName}</p>
                         </div>
-                        <button onClick={e => onAdd(track)} type="button" className="text-sm font-bold text-neutral-300 hover:text-white">
-                            + Add
-                        </button>
+                        <StatefulButton 
+                            onClick={async () => await onAdd(track)} 
+                            idleText="Add" 
+                        />
                     </div>
                 ))}
             </div>
