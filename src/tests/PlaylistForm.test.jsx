@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import PlaylistForm from "./PlaylistForm";
+import PlaylistForm from "../components/PlaylistForm";
 
 describe('PlaylistForm', () => {
   it('keeps the submit button disabled when Public is selected but the description is empty', async () => {
