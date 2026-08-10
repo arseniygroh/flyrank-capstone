@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import StatefulButton from "@/components/StatefulButton"; 
 
 export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay}) {
-    const { setCurrentTrackList, createPlaylist } = usePlaylists();
+    const { setCurrentTrackList, createPlaylist, playlists } = usePlaylists();
     const { user } = useAuth();
 
     function handleAddTrack(newTrack) {
@@ -47,14 +47,21 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
     }
 
     async function handleAddToMyOwnPlaylists() {
-        const { id, ...restOfPlaylist } = playlist;
+        const copied = playlists.some((p) => p.name === playlist.name);
     
+        if (copied) {
+            alert("You already have a copy of this playlist in your library!");
+            throw new Error("already copied");
+        }
+        const { id, ...restOfPlaylist } = playlist;
+        
         const copy = {
             ...restOfPlaylist,
             isShared: false,
             privacy: "Private",
             creatorName: user.username
         };
+        
         await createPlaylist(copy);
     }
 
