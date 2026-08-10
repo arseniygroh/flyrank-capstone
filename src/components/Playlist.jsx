@@ -33,6 +33,15 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
         setCurrentTrackList(playlist.tracks);
     }
 
+    function hadnleShare() {
+        const updatedPlaylist = {
+            ...playlist,
+            isShared: !playlist.isShared
+        }
+
+        onUpdate(updatedPlaylist);
+    }
+
     return (
         <article className="flex flex-col p-6 h-full text-white">
             <h2 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
@@ -66,8 +75,9 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                     <button 
                         className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
                         type="button" 
+                        onClick={hadnleShare}
                     >
-                        Share with community
+                        {!playlist.isShared ? "Share with community" : "Stop sharing"} 
                     </button>
                 )}
             </div>
