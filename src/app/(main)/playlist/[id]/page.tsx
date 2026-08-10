@@ -1,14 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import Playlist from "@/components/Playlist";
+import PlaylistComponent from "@/components/Playlist"; 
 import { usePlaylists } from "@/context/PlaylistsContext";
+import type { Playlist } from "@/types/playlist";
 
 export default function PlaylistDetailPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
   const router = useRouter();
+  
   const {
     hydrated,
     getPlaylist,
@@ -17,24 +20,43 @@ export default function PlaylistDetailPage() {
     setCurrentTrack,
   } = usePlaylists();
 
-  if (!hydrated) {
+  const [playlist, setPlaylist] = useState<Playlist | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!hydrated || !id) return;
+
+    async function loadPlaylist() {
+      setIsLoading(true);
+      const foundPlaylist = await getPlaylist(id as string);
+      setPlaylist(foundPlaylist || null);
+      setIsLoading(false);
+    }
+
+    loadPlaylist();
+  }, [id, hydrated, getPlaylist]);
+
+  if (!hydrated || isLoading) {
     return (
-      <div className="p-6 text-neutral-400 xl:p-10">Loading playlist…</div>
+      <div className="p-6 text-neutral-400 xl:p-10 flex items-center justify-center h-full">
+        <div className="flex items-center gap-2">
+           <div className="w-4 h-4 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin" />
+           Loading playlist…
+        </div>
+      </div>
     );
   }
-
-  const playlist = id ? getPlaylist(id) : undefined;
 
   if (!playlist) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
         <h1 className="text-2xl font-bold">Playlist not found</h1>
         <p className="text-neutral-400">
-          It may have been deleted or the link is incorrect.
+          It may have been deleted, is private, or the link is incorrect.
         </p>
         <Link
           href="/"
-          className="rounded-full bg-neutral-800 px-6 py-2 font-semibold hover:bg-neutral-700"
+          className="rounded-full bg-neutral-800 px-6 py-2 font-semibold hover:bg-neutral-700 transition-colors"
         >
           Back to home
         </Link>
@@ -42,21 +64,21 @@ export default function PlaylistDetailPage() {
     );
   }
 
-  const currentPlaylist = playlist;
-
   function handleDelete() {
-    if (!window.confirm(`Delete "${currentPlaylist.name}"?`)) return;
-    deletePlaylist(currentPlaylist.id);
+    if (!playlist) return;
+    if (!window.confirm(`Delete "${playlist.name}"?`)) return;
+    deletePlaylist(playlist.id);
     router.push("/");
   }
 
   function handleEdit() {
-    router.push(`/playlist/${currentPlaylist.id}/edit`);
+    if (!playlist) return;
+    router.push(`/playlist/${playlist.id}/edit`);
   }
 
   return (
-    <Playlist
-      playlist={currentPlaylist}
+    <PlaylistComponent
+      playlist={playlist}
       onDelete={handleDelete}
       onEdit={handleEdit}
       onUpdate={updatePlaylist}

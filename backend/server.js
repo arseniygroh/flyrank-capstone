@@ -96,7 +96,6 @@ app.get("/playlists/share", async (req, res) => {
 app.get("/playlists/:id", authenticateToken, async (req, res) => {
   try {
       const playlistId = req.params.id;
-      const currentUserId = req.user.id; 
 
       const allPlaylists = await getPlaylists();
       const playlist = allPlaylists.find(p => p.id === playlistId);
@@ -105,10 +104,9 @@ app.get("/playlists/:id", authenticateToken, async (req, res) => {
           return res.status(404).json({ error: "Playlist not found" });
       }
 
-      const isOwner = playlist.userId === currentUserId;
       const isPubliclyShared = playlist.privacy !== "Private" && playlist.isShared;
 
-      if (!isOwner && !isPubliclyShared) {
+      if (!isPubliclyShared) {
           return res.status(403).json({ error: "You do not have permission to view this playlist" });
       }
 
