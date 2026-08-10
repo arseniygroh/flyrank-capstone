@@ -15,7 +15,8 @@ export type Playlist = {
   privacy: PlaylistPrivacy;
   description: string;
   tracks: PlaylistTrack[];
-  isShared: boolean
+  isShared: boolean;
+  creatorName: string | undefined | null;
 };
 
 export type PlaylistFormData = {

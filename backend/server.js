@@ -72,6 +72,27 @@ async function savePlaylists(playlists) {
     await fs.writeFile(PLAYLISTS_DB, JSON.stringify(playlists, null, 2));
 }
 
+app.get("/playlists/share", async (req, res) => {
+    try {
+      const allUsers = await getUsers();
+      const allPlaylists = await getPlaylists();
+      const sharablePlaylists = allPlaylists.filter(p => {
+        if (p.privacy !== "Private" && p.isShared) return p;
+      })
+      const data = sharablePlaylists.map(p => {
+        const creatorName = allUsers.find(u => u.id === p.userId).username;
+        return {
+          ...p,
+          creatorName
+        }
+      });
+      res.status(200).json(data);
+
+    } catch (e) {
+      res.status(500).json({error: "Failed to fetch playlists"});
+    }
+});
+
 app.get("/playlists", authenticateToken, async (req, res) => {
     try {
       const allPlaylists = await getPlaylists();
