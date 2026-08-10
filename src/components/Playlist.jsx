@@ -1,9 +1,11 @@
 "use client";
 import { usePlaylists } from "@/context/PlaylistsContext";
 import TrackSearch from "./TrackSearch";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay}) {
     const { setCurrentTrackList } = usePlaylists();
+    const { user } = useAuth();
     function handleAddTrack(newTrack) {
         const trackExists = playlist.tracks.some(t => t.trackId === newTrack.trackId);
         

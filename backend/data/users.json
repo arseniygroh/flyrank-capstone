@@ -4,5 +4,11 @@
     "username": "Arsenii",
     "email": "arsenii.test@gmail.com",
     "password": "$2b$10$0NMxKecMOUpdSdOEAw5.IemgYTNTadQgENuieJug6XfQ2Kno3z9fa"
+  },
+  {
+    "id": "1786376046497",
+    "username": "test",
+    "email": "test@gmail.com",
+    "password": "$2b$10$iVr1AoeDrs46z2xmeqXwquArhU60EL2yE3Rfu9kzuabky8xsZL1uu"
   }
 ]

@@ -22,7 +22,7 @@ type PlaylistsContextValue = {
   currentTrackList: PlaylistTrack[] | null;
   setCurrentTrack: (track: PlaylistTrack | null) => void;
   setCurrentTrackList: (tracks: PlaylistTrack[] | null) => void;
-  getPlaylist: (id: string) => Playlist | undefined;
+  getPlaylist: (id: string) => Promise<Playlist | undefined>;
   createPlaylist: (formData: PlaylistFormData) => Promise<Playlist | undefined>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
   deletePlaylist: (id: string) => Promise<void>;
@@ -75,8 +75,34 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   }, [user, authHydrated, token]);
 
   const getPlaylist = useCallback(
-    (id: string) => playlists.find((p) => p.id === id),
-    [playlists]
+    async (id: string) => {
+      const localPlaylist = playlists.find((p) => p.id === id);
+      if (localPlaylist) {
+        return localPlaylist;
+      }
+      
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`${API_URL}/playlists/${id}`, { headers });
+        
+        if (res.ok) {
+          const fetchedPlaylist = await res.json();
+          return fetchedPlaylist;
+        }
+      } catch (error) {
+        console.error("Error fetching community playlist:", error);
+      }
+      
+      return undefined;
+    },
+    [playlists, token]
   );
 
   const createPlaylist = useCallback(async (formData: PlaylistFormData) => {

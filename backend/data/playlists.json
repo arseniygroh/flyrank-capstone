@@ -109,6 +109,6 @@
         "isStreamable": true
       }
     ],
-    "isShared": false
+    "isShared": true
   }
 ]
