@@ -2,10 +2,12 @@
 import { usePlaylists } from "@/context/PlaylistsContext";
 import TrackSearch from "./TrackSearch";
 import { useAuth } from "@/context/AuthContext";
+import StatefulButton from "@/components/StatefulButton"; 
 
 export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay}) {
-    const { setCurrentTrackList } = usePlaylists();
+    const { setCurrentTrackList, createPlaylist } = usePlaylists();
     const { user } = useAuth();
+
     function handleAddTrack(newTrack) {
         const trackExists = playlist.tracks.some(t => t.trackId === newTrack.trackId);
         
@@ -35,13 +37,25 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
         setCurrentTrackList(playlist.tracks);
     }
 
-    function hadnleShare() {
+    function handleShare() {
         const updatedPlaylist = {
             ...playlist,
             isShared: !playlist.isShared
         }
 
         onUpdate(updatedPlaylist);
+    }
+
+    async function handleAddToMyOwnPlaylists() {
+        const { id, ...restOfPlaylist } = playlist;
+    
+        const copy = {
+            ...restOfPlaylist,
+            isShared: false,
+            privacy: "Private",
+            creatorName: user.username
+        };
+        await createPlaylist(copy);
     }
 
     return (
@@ -59,28 +73,37 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
             )}
             
             <div className="flex items-center gap-4 mt-6">
-                <button 
-                    className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
-                    type="button" 
-                    onClick={onEdit}
-                >
-                    Edit
-                </button>
-                <button 
-                    className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-6 rounded-full transition-colors" 
-                    type="button" 
-                    onClick={onDelete}
-                >
-                    Delete
-                </button>
-                {playlist.privacy !== "Private" && (
-                    <button 
-                        className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
-                        type="button" 
-                        onClick={hadnleShare}
-                    >
-                        {!playlist.isShared ? "Share with community" : "Stop sharing"} 
-                    </button>
+                {user.username === playlist.creatorName ? (
+                    <>
+                        <button 
+                            className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
+                            type="button" 
+                            onClick={onEdit}
+                        >
+                            Edit
+                        </button>
+                        <button 
+                            className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-6 rounded-full transition-colors" 
+                            type="button" 
+                            onClick={onDelete}
+                        >
+                            Delete
+                        </button>
+                        {playlist.privacy !== "Private" && (
+                            <button 
+                                className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
+                                type="button" 
+                                onClick={handleShare}
+                            >
+                                {!playlist.isShared ? "Share with community" : "Stop sharing"} 
+                            </button>
+                        )}
+                    </>
+                ): (
+                    <StatefulButton 
+                        onClick={handleAddToMyOwnPlaylists} 
+                        idleText="Add to my own playlists" 
+                    />
                 )}
             </div>
             <div className="mt-12 mb-8">
@@ -101,19 +124,21 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                                         <p className="text-sm text-neutral-400">{track.artistName}</p>
                                     </div>
                                 </div>
-                                <button onClick={e => {
-                                    e.stopPropagation(); 
-                                    handleDeleteTrack(track.trackId);
-                                    }} 
-                                    className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-red-500 font-bold px-4 transition-all cursor-pointer">
-                                    X
-                                </button>
+                                {user.username === playlist.creatorName && (
+                                    <button onClick={e => {
+                                        e.stopPropagation(); 
+                                        handleDeleteTrack(track.trackId);
+                                        }} 
+                                        className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-red-500 font-bold px-4 transition-all cursor-pointer">
+                                        X
+                                    </button>
+                                )}
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
-            <TrackSearch onAdd={handleAddTrack} />
+            {user.username === playlist.creatorName && <TrackSearch onAdd={handleAddTrack} />}
         </article>
     )
 }
