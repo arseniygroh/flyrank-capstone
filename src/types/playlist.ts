@@ -23,4 +23,5 @@ export type PlaylistFormData = {
   name: string;
   privacy: PlaylistPrivacy;
   description: string;
+  creatorName: string | undefined | null;
 };

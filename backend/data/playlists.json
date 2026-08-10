@@ -5,6 +5,7 @@
     "name": "Sport",
     "privacy": "Public",
     "description": "Playlist for gym",
+    "creatorName": "Arsenii",
     "tracks": [
       {
         "wrapperType": "track",
@@ -108,6 +109,6 @@
         "isStreamable": true
       }
     ],
-    "isShared": true
+    "isShared": false
   }
 ]

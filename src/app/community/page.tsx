@@ -58,7 +58,7 @@ export default function CommunityPage() {
         <div className="text-center py-20 border border-dashed border-neutral-800 rounded-2xl">
           <Music className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-white mb-2">It's quiet in here...</h3>
-          <p className="text-neutral-400">Be the first to publish a public playlist!</p>
+          <p className="text-neutral-400">Be the first to publish a playlist!</p>
         </div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

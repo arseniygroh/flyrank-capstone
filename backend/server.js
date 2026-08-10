@@ -105,7 +105,7 @@ app.get("/playlists", authenticateToken, async (req, res) => {
 
 app.post("/playlists", authenticateToken, async (req, res) => {
   try {
-    const { name, privacy, description, tracks = [] } = req.body;
+    const { name, privacy, description, tracks = [], isShared = false, creatorName } = req.body;
     if (!name) {
       return res.status(422).json({error: "Playlist name is required."});
     }
@@ -118,6 +118,8 @@ app.post("/playlists", authenticateToken, async (req, res) => {
       privacy,
       description,
       tracks,
+      creatorName,
+      isShared
     };
 
     playlists.push(newPlaylist);

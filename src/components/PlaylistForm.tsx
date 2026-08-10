@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Playlist, PlaylistFormData, PlaylistPrivacy } from "@/types/playlist";
+import { useAuth } from "@/context/AuthContext";
 
 const PRIVACY_OPTIONS: PlaylistPrivacy[] = ["Public", "Private", "Collaborative"];
 
@@ -9,8 +10,12 @@ function isDescriptionRequired(privacy: PlaylistPrivacy) {
   return privacy === "Public" || privacy === "Collaborative";
 }
 
-function isFormValid({ name, privacy, description }: PlaylistFormData) {
+function isFormValid({ name, privacy, description, creatorName }: PlaylistFormData) {
   if (name.trim().length < 3) {
+    return false;
+  }
+
+  if (creatorName?.trim().length === 0) {
     return false;
   }
 
@@ -32,6 +37,7 @@ export default function PlaylistForm({
   initialData,
   onCancel,
 }: PlaylistFormProps) {
+  const {user} = useAuth();
   const [name, setName] = useState(initialData ? initialData.name : "");
   const [privacy, setPrivacy] = useState<PlaylistPrivacy>(
     initialData ? initialData.privacy : "Private"
@@ -44,7 +50,7 @@ export default function PlaylistForm({
   const nameTooShort = name.length > 0 && name.trim().length < 3;
   const descriptionRequired = isDescriptionRequired(privacy);
   const descriptionMissing = descriptionRequired && description.trim().length === 0;
-  const formValid = isFormValid({ name, privacy, description });
+  const formValid = isFormValid({ name, privacy, description, creatorName: user?.username });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,7 +61,7 @@ export default function PlaylistForm({
 
     setIsSubmitting(true);
     try {
-      await onSubmit?.({ name: name.trim(), privacy, description: description.trim() });
+      await onSubmit?.({ name: name.trim(), privacy, description: description.trim(), creatorName: user?.username });
       if (!initialData) {
         setName("");
         setPrivacy("Private");
