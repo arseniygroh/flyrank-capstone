@@ -93,6 +93,40 @@ app.get("/playlists/share", async (req, res) => {
     }
 });
 
+app.get("/playlists/:id", authenticateToken, async (req, res) => {
+  try {
+      const playlistId = req.params.id;
+      const currentUserId = req.user.id; 
+
+      const allPlaylists = await getPlaylists();
+      const playlist = allPlaylists.find(p => p.id === playlistId);
+
+      if (!playlist) {
+          return res.status(404).json({ error: "Playlist not found" });
+      }
+
+      const isOwner = playlist.userId === currentUserId;
+      const isPubliclyShared = playlist.privacy !== "Private" && playlist.isShared;
+
+      if (!isOwner && !isPubliclyShared) {
+          return res.status(403).json({ error: "You do not have permission to view this playlist" });
+      }
+
+      const allUsers = await getUsers();
+      const creator = allUsers.find(u => u.id === playlist.userId);
+      
+      const data = {
+        ...playlist,
+        creatorName: creator?.username || "Unknown user"
+      };
+
+      res.status(200).json(data);
+
+  } catch (e) {
+      res.status(500).json({ error: "Failed to fetch playlist" });
+  }
+});
+
 app.get("/playlists", authenticateToken, async (req, res) => {
     try {
       const allPlaylists = await getPlaylists();
