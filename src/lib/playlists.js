@@ -7,5 +7,6 @@ export function createPlaylistFromForm({ name, privacy, description }) {
     privacy,
     description,
     tracks: [],
+    isShared: false,
   };
 }

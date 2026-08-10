@@ -62,6 +62,14 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                 >
                     Delete
                 </button>
+                {playlist.privacy !== "Private" && (
+                    <button 
+                        className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
+                        type="button" 
+                    >
+                        Share with community
+                    </button>
+                )}
             </div>
             <div className="mt-12 mb-8">
                 <h3 className="text-xl font-bold mb-4 text-neutral-200 border-b border-neutral-800 pb-2">

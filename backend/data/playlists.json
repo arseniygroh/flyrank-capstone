@@ -3,7 +3,7 @@
     "id": "1784800047810",
     "userId": "1784740043936",
     "name": "Sport",
-    "privacy": "Private",
+    "privacy": "Public",
     "description": "Playlist for gym",
     "tracks": [
       {
@@ -107,6 +107,7 @@
         "primaryGenreName": "Soundtrack",
         "isStreamable": true
       }
-    ]
+    ],
+    "isShared": false
   }
 ]
