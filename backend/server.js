@@ -72,6 +72,45 @@ async function savePlaylists(playlists) {
     await fs.writeFile(PLAYLISTS_DB, JSON.stringify(playlists, null, 2));
 }
 
+
+app.post("/playlists/:id/comments", authenticateToken, async (req, res) => {
+  try {
+    const playlistId = req.params.id;
+    const playlists = await getPlaylists();
+
+    const index = playlists.findIndex(p => p.id === playlistId);
+
+    if (index === -1) {
+      return res.status(404).json({error: "Playlist not found"});
+    }
+
+    const comment = {
+      id: Date.now().toString(), 
+      userId: req.user.userId, 
+      username: req.user.username,
+      timestamp: new Date().toISOString(),
+      content: req.body.commentText
+    };
+
+    const playlist = playlists[index];
+
+    if (playlist.comments) {
+      playlist.comments.push(comment);
+    } else {
+      playlist.comments = [comment];
+    }
+
+    playlists[index] = playlist;
+    await savePlaylists(playlists);
+
+    res.status(201).json(comment);
+
+  } catch (e) {
+    res.status(500).json({error: "Failed to post your comment"});
+  }
+});
+
+
 app.get("/playlists/share", async (req, res) => {
     try {
       const allUsers = await getUsers();
