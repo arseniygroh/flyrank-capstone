@@ -17,6 +17,9 @@ export type Playlist = {
   tracks: PlaylistTrack[];
   isShared: boolean;
   creatorName: string | undefined | null;
+  likesCount?: number;
+  dislikesCount?: number;
+  commentsCount?: number;
 };
 
 export type PlaylistFormData = {
