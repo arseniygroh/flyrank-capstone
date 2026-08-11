@@ -93,7 +93,7 @@ app.get("/playlists/share", async (req, res) => {
     }
 });
 
-app.get("/playlists/:id", authenticateToken, async (req, res) => {
+app.get("/playlists/:id", async (req, res) => {
   try {
       const playlistId = req.params.id;
 

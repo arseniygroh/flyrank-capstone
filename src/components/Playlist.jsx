@@ -78,41 +78,42 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                     {playlist.description}
                 </p>
             )}
-            
-            <div className="flex items-center gap-4 mt-6">
-                {user.username === playlist.creatorName ? (
-                    <>
-                        <button 
-                            className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
-                            type="button" 
-                            onClick={onEdit}
-                        >
-                            Edit
-                        </button>
-                        <button 
-                            className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-6 rounded-full transition-colors" 
-                            type="button" 
-                            onClick={onDelete}
-                        >
-                            Delete
-                        </button>
-                        {playlist.privacy !== "Private" && (
+            {user?.username && (
+                <div className="flex items-center gap-4 mt-6">
+                    {user?.username === playlist.creatorName ? (
+                        <>
                             <button 
                                 className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
                                 type="button" 
-                                onClick={handleShare}
+                                onClick={onEdit}
                             >
-                                {!playlist.isShared ? "Share with community" : "Stop sharing"} 
+                                Edit
                             </button>
-                        )}
-                    </>
-                ): (
-                    <StatefulButton 
-                        onClick={handleAddToMyOwnPlaylists} 
-                        idleText="Add to my own playlists" 
-                    />
-                )}
-            </div>
+                            <button 
+                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-6 rounded-full transition-colors" 
+                                type="button" 
+                                onClick={onDelete}
+                            >
+                                Delete
+                            </button>
+                            {playlist.privacy !== "Private" && (
+                                <button 
+                                    className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-8 rounded-full transition-colors" 
+                                    type="button" 
+                                    onClick={handleShare}
+                                >
+                                    {!playlist.isShared ? "Share with community" : "Stop sharing"} 
+                                </button>
+                            )}
+                        </>
+                    ): (
+                        <StatefulButton 
+                            onClick={handleAddToMyOwnPlaylists} 
+                            idleText="Add to my own playlists" 
+                        />
+                    )}
+                </div>
+            )}
             <div className="mt-12 mb-8">
                 <h3 className="text-xl font-bold mb-4 text-neutral-200 border-b border-neutral-800 pb-2">
                     Tracks
@@ -131,7 +132,7 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                                         <p className="text-sm text-neutral-400">{track.artistName}</p>
                                     </div>
                                 </div>
-                                {user.username === playlist.creatorName && (
+                                {user?.username === playlist.creatorName && (
                                     <button onClick={e => {
                                         e.stopPropagation(); 
                                         handleDeleteTrack(track.trackId);
@@ -145,7 +146,7 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                     </ul>
                 )}
             </div>
-            {user.username === playlist.creatorName && <TrackSearch onAdd={handleAddTrack} />}
+            {user?.username === playlist.creatorName && <TrackSearch onAdd={handleAddTrack} />}
         </article>
     )
 }
