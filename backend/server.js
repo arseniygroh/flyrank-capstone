@@ -77,17 +77,24 @@ app.post("/playlists/:id/comments", authenticateToken, async (req, res) => {
   try {
     const playlistId = req.params.id;
     const playlists = await getPlaylists();
-
+    const users = await getUsers();
     const index = playlists.findIndex(p => p.id === playlistId);
 
     if (index === -1) {
       return res.status(404).json({error: "Playlist not found"});
     }
 
+    const userId = req.user.userId;
+    const user = users.find(u => u.id === userId);
+
+    if (!user) {
+      return res.status(403).json({error: "You do not have permission to post comments"});
+    }
+
     const comment = {
       id: Date.now().toString(), 
-      userId: req.user.userId, 
-      username: req.user.username,
+      userId, 
+      username: user.username,
       timestamp: new Date().toISOString(),
       content: req.body.commentText
     };
