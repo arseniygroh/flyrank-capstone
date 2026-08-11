@@ -133,12 +133,35 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
       </div>
       {comments.length > 0 && (
         <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 max-h-48 overflow-y-auto">
-          {comments.map((comment: any) => (
-            <div key={comment.id} className="text-sm">
-              <span className="font-bold text-neutral-300 mr-2">{comment.username}</span>
-              <span className="text-neutral-400">{comment.content}</span>
-            </div>
-          ))}
+          {comments.map((comment: any) => {
+            const formattedDate = comment.timestamp 
+                ? new Date(comment.timestamp).toLocaleString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                })
+                : "";
+
+            return (
+                <div 
+                key={comment.id} 
+                className="flex flex-col gap-1 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/50"
+                >
+                <div className="flex items-baseline justify-between">
+                    <span className="font-bold text-neutral-200 text-sm">
+                        {comment.username}
+                    </span>
+                    <span className="text-xs text-neutral-500 font-medium">
+                        {formattedDate}
+                    </span>
+                </div>
+                    <p className="text-neutral-300 text-sm leading-relaxed">
+                        {comment.content}
+                    </p>
+                </div>
+            );
+            })}
         </div>
       )}
       {token && (
