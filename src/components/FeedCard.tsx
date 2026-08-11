@@ -4,23 +4,80 @@ import { useState } from "react";
 import Link from "next/link";
 import { Music, ThumbsUp, ThumbsDown, MessageSquare, Send } from "lucide-react";
 import { Playlist } from "@/types/playlist";
+import { API_URL } from "@/context/PlaylistsContext";
+import { useAuth } from "@/context/AuthContext";
+
+interface Comment {
+    id: string;
+    userId: string;
+    username: string;
+    timestamp: string;
+    content: string;
+}
 
 export default function FeedCard({ playlist }: { playlist: Playlist }) {
+  const { token } = useAuth();
+  
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [likesCount, setLikesCount] = useState(playlist.likes?.length || 0);
+  const [dislikesCount, setDislikesCount] = useState(playlist.dislikes?.length || 0);
+  const [comments, setComments] = useState<Comment[]>(playlist.comments || []);
+  console.log(comments);
+  
+  const handleRate = async (type: "like" | "dislike") => {
+    if (!token) {
+      alert("Please log in to interact with playlists.");
+      return;
+    }
 
-  const handleLike = () => console.log("Liked", playlist.id);
-  const handleDislike = () => console.log("Disliked", playlist.id);
+    try {
+      const res = await fetch(`${API_URL}/playlists/${playlist.id}/rate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({type})
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setLikesCount(data.likesCount);
+        setDislikesCount(data.dislikesCount);
+      }
+    } catch (error) {
+      console.error("Failed to rate playlist:", error);
+    }
+  };
   
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !token) return;
     
     setIsSubmitting(true);
-    console.log("Submitting comment:", commentText);
     
-    setCommentText("");
-    setIsSubmitting(false);
+    try {
+      const res = await fetch(`${API_URL}/playlists/${playlist.id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({commentText})
+      });
+
+      if (res.ok) {
+        const newComment = await res.json();
+        setComments(prev => [...prev, newComment]);
+        setCommentText("");
+      }
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,41 +115,51 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
           {playlist.description || "No description provided."}
         </p>
       </div>
-
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-950/50 flex items-center gap-6">
-        <button onClick={handleLike} className="flex items-center gap-2 text-neutral-400 hover:text-green-400 transition-colors group">
+        <button onClick={() => handleRate("like")} className="flex items-center gap-2 text-neutral-400 hover:text-green-400 transition-colors group">
           <ThumbsUp className="w-5 h-5 group-active:scale-90 transition-transform" /> 
-          <span className="font-bold">{playlist.likesCount || 0}</span>
+          <span className="font-bold">{likesCount}</span>
         </button>
         
-        <button onClick={handleDislike} className="flex items-center gap-2 text-neutral-400 hover:text-red-400 transition-colors group">
+        <button onClick={() => handleRate("dislike")} className="flex items-center gap-2 text-neutral-400 hover:text-red-400 transition-colors group">
           <ThumbsDown className="w-5 h-5 group-active:scale-90 transition-transform" /> 
-          <span className="font-bold">{playlist.dislikesCount || 0}</span>
+          <span className="font-bold">{dislikesCount}</span>
         </button>
 
         <div className="flex items-center gap-2 text-neutral-400 ml-auto">
           <MessageSquare className="w-5 h-5" /> 
-          <span className="font-bold">{playlist.commentsCount || 0}</span>
+          <span className="font-bold">{comments.length}</span>
         </div>
       </div>
-
-      <form onSubmit={handleCommentSubmit} className="p-4 border-t border-neutral-800 bg-neutral-900 flex items-center gap-3">
-        <input 
-          type="text" 
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Add a comment..."
-          className="flex-grow bg-neutral-950 border border-neutral-800 rounded-full px-5 py-2.5 text-sm text-white focus:outline-none focus:border-neutral-600 transition-colors"
-          disabled={isSubmitting}
-        />
-        <button 
-          type="submit"
-          disabled={!commentText.trim() || isSubmitting}
-          className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-200 transition-colors shrink-0"
-        >
-          <Send className="w-4 h-4 ml-[-2px]" />
-        </button>
-      </form>
+      {comments.length > 0 && (
+        <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 max-h-48 overflow-y-auto">
+          {comments.map((comment: any) => (
+            <div key={comment.id} className="text-sm">
+              <span className="font-bold text-neutral-300 mr-2">{comment.username}</span>
+              <span className="text-neutral-400">{comment.content}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {token && (
+        <form onSubmit={handleCommentSubmit} className="p-4 border-t border-neutral-800 bg-neutral-900 flex items-center gap-3">
+            <input 
+                type="text" 
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Add a comment..."
+                className="flex-grow bg-neutral-950 border border-neutral-800 rounded-full px-5 py-2.5 text-sm text-white focus:outline-none focus:border-neutral-600 transition-colors"
+                disabled={isSubmitting || !token}
+            />
+            <button 
+                type="submit"
+                disabled={!commentText.trim() || isSubmitting || !token}
+                className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-200 transition-colors shrink-0"
+            >
+                <Send className="w-4 h-4 ml-[-2px]" />
+            </button>
+        </form>
+      )}
     </article>
   );
 }
