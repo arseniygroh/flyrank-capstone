@@ -110,6 +110,56 @@ app.post("/playlists/:id/comments", authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/playlists/:id/rate", authenticateToken, async (req, res) => {
+  try {
+    const playlistId = req.params.id;
+    const playlists = await getPlaylists();
+
+    const index = playlists.findIndex(p => p.id === playlistId);
+
+    if (index === -1) {
+      return res.status(404).json({error: "Playlist not found"});
+    }
+
+    const userId = req.user.userId;
+    const playlist = playlists[index];
+    const type = req.body.type;
+
+    if (!playlist.likes) playlist.likes = [];
+    if (!playlist.dislikes) playlist.dislikes = [];
+
+    if (type === "like") {
+      if (playlist.likes.includes(userId)) {
+        playlist.likes = playlist.likes.filter(id => id !== userId);
+      } else {
+        playlist.likes.push(userId);
+        playlist.dislikes = playlist.dislikes.filter(id => id !== userId);
+      }
+    } else if (type === "dislike") {
+      if (playlist.dislikes.includes(userId)) {
+        playlist.dislikes = playlist.dislikes.filter(id => id !== userId);
+      } else {
+        playlist.dislikes.push(userId);
+        playlist.likes = playlist.likes.filter(id => id !== userId);
+      }
+    } else {
+      return res.status(400).json({error: "Invalid rating type"});
+    }
+
+    playlists[index] = playlist;
+    await savePlaylists(playlists);
+
+    res.status(200).json({
+      message: "Rating updated",
+      likesCount: playlist.likes.length,
+      dislikesCount: playlist.dislikes.length
+    });
+
+  } catch (e) {
+    res.status(500).json({error: "Failed to rate the playlist"});
+  }
+});
+
 
 app.get("/playlists/share", async (req, res) => {
     try {
