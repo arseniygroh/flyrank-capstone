@@ -40,6 +40,7 @@ export default function AppShell({ children }) {
             <NavLink href="/">Home</NavLink>
             <NavLink href="/playlist/new">New playlist</NavLink>
             <NavLink href="/chat">AI</NavLink>
+            <NavLink href="/community">Community</NavLink>
           </nav>
           <div className="flex-1 overflow-y-auto min-h-[100px]">
             {hydrated ? (
