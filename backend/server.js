@@ -419,7 +419,8 @@ app.post("/login", async (req, res) => {
         token,
         exprirationDate, 
         email: user.email, 
-        username: user.username 
+        username: user.username,
+        id: user.id
     });
     } catch (error) {
       res.status(500).json({error: "Internal server error"});

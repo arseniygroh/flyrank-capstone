@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Music, ThumbsUp, ThumbsDown, MessageSquare, Send } from "lucide-react";
+import { Music, ThumbsUp, ThumbsDown, MessageSquare, Send, Trash2 } from "lucide-react";
 import { Playlist } from "@/types/playlist";
 import { API_URL } from "@/context/PlaylistsContext";
 import { useAuth } from "@/context/AuthContext";
@@ -16,7 +16,7 @@ interface Comment {
 }
 
 export default function FeedCard({ playlist }: { playlist: Playlist }) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -131,39 +131,51 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
           <span className="font-bold">{comments.length}</span>
         </div>
       </div>
-      {comments.length > 0 && (
-        <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 max-h-48 overflow-y-auto">
-          {comments.map((comment: any) => {
-            const formattedDate = comment.timestamp 
-                ? new Date(comment.timestamp).toLocaleString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                })
-                : "";
+      {comments.map((comment: any) => {
+        const formattedDate = comment.timestamp 
+          ? new Date(comment.timestamp).toLocaleString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            })
+          : "";
 
-            return (
-                <div 
-                key={comment.id} 
-                className="flex flex-col gap-1 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/50"
-                >
-                <div className="flex items-baseline justify-between">
-                    <span className="font-bold text-neutral-200 text-sm">
-                        {comment.username}
-                    </span>
-                    <span className="text-xs text-neutral-500 font-medium">
-                        {formattedDate}
-                    </span>
-                </div>
-                    <p className="text-neutral-300 text-sm leading-relaxed">
-                        {comment.content}
-                    </p>
-                </div>
-            );
-            })}
-        </div>
-      )}
+        
+        const isOwner = user && user.id === comment.userId;
+
+        return (
+          <div 
+            key={comment.id} 
+            className="flex flex-col gap-1 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/50 group"
+          >
+            <div className="flex items-baseline justify-between">
+              <span className="font-bold text-neutral-200 text-sm">
+                {comment.username}
+              </span>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-neutral-500 font-medium">
+                  {formattedDate}
+                </span>
+                
+                {isOwner && (
+                  <button 
+                    //onClick={() => handleDeleteComment(comment.id)}
+                    className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-red-500 transition-all"
+                    title="Delete comment"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="text-neutral-300 text-sm leading-relaxed">
+              {comment.content}
+            </p>
+          </div>
+        );
+      })}
       {token && (
         <form onSubmit={handleCommentSubmit} className="p-4 border-t border-neutral-800 bg-neutral-900 flex items-center gap-3">
             <input 

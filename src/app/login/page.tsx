@@ -34,6 +34,7 @@ export default function LoginPage() {
       login(resData.token, new Date(resData.exprirationDate), {
         email: resData.email,
         username: resData.username,
+        id: resData.id,
       });
       router.push("/");
     } catch (err: any) {
