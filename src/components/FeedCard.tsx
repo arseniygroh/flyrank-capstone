@@ -24,7 +24,6 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
   const [likesCount, setLikesCount] = useState(playlist.likes?.length || 0);
   const [dislikesCount, setDislikesCount] = useState(playlist.dislikes?.length || 0);
   const [comments, setComments] = useState<Comment[]>(playlist.comments || []);
-  console.log(comments);
   
   const handleRate = async (type: "like" | "dislike") => {
     if (!token) {
@@ -79,6 +78,30 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
       setIsSubmitting(false);
     }
   };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/playlists/${playlist.id}/comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error);
+      }
+
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      
+    } catch (error: any) {      
+      alert(`Could not delete comment: ${error.message}`);
+    }
+  };
+
 
   return (
     <article className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col">
@@ -161,7 +184,7 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
                 
                 {isOwner && (
                   <button 
-                    //onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() => handleDeleteComment(comment.id)}
                     className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-red-500 transition-all"
                     title="Delete comment"
                   >
