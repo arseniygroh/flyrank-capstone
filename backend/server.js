@@ -73,6 +73,45 @@ async function savePlaylists(playlists) {
 }
 
 
+app.delete("/playlists/:playlistId/comments/:commentId", authenticateToken, async (req, res) => {
+  try {
+    const { playlistId, commentId } = req.params;
+    const userId = req.user.userId;
+
+    const playlists = await getPlaylists();
+    const playlistIndex = playlists.findIndex(p => p.id === playlistId);
+
+    if (playlistIndex === -1) {
+      return res.status(404).json({error: "Playlist not found"});
+    }
+
+    const playlist = playlists[playlistIndex];
+    if (!playlist.comments) {
+      return res.status(404).json({error: "Comment not found"});
+    }
+
+    const comment = playlist.comments.find(c => c.id === commentId);
+
+    if (!comment) {
+      return res.status(404).json({error: "Comment not found"});
+    }
+
+    if (comment.userId !== userId) {
+      return res.status(403).json({error: "You can only delete your own comments"});
+    }
+
+    playlist.comments = playlist.comments.filter(c => c.id !== commentId);
+    playlists[playlistIndex] = playlist;
+    
+    await savePlaylists(playlists);
+
+    res.status(200).json({message: "Comment deleted successfully"});
+  } catch (e) {
+    res.status(500).json({error: "Failed to delete comment"});
+  }
+});
+
+
 app.post("/playlists/:id/comments", authenticateToken, async (req, res) => {
   try {
     const playlistId = req.params.id;
