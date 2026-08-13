@@ -30,7 +30,8 @@ export default function PlaylistDetailPage() {
     updatePlaylist,
     deletePlaylist,
     setCurrentTrack,
-    isPaused
+    isPaused,
+    currentTrack
   } = usePlaylists();
 
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
@@ -93,8 +94,7 @@ export default function PlaylistDetailPage() {
   return (
     <div className="flex flex-col w-full">
       <CassetteScene 
-        playlistName={playlist.name} 
-        isPlaying={!isPaused}
+        isPlaying={!!currentTrack && !isPaused}
       />
       <PlaylistComponent
         playlist={playlist}
