@@ -4,17 +4,106 @@ import TrackSearch from "./TrackSearch";
 import { useAuth } from "@/context/AuthContext";
 import StatefulButton from "@/components/StatefulButton";
 
-export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay}) {
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import {
+    SortableContext,
+    arrayMove,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react"; 
+
+function SortableTrackItem({ track, index, isOwner, onPlay, onDelete }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: track.trackId });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : 1,
+        position: isDragging ? "relative" : "static",
+    };
+
+    return (
+        <li
+            ref={setNodeRef}
+            style={style}
+            onClick={() => onPlay(track)}
+            className="flex items-center justify-between gap-2 p-3 bg-neutral-900 rounded-md group hover:bg-neutral-800 active:bg-neutral-800 transition-colors cursor-pointer min-w-0"
+        >
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                {isOwner && (
+                    <div
+                        {...attributes}
+                        {...listeners}
+                        onClick={(e) => e.stopPropagation()} 
+                        className="cursor-grab active:cursor-grabbing text-neutral-500 hover:text-white transition-colors p-1"
+                        aria-label="Drag to reorder"
+                    >
+                        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                )}
+                <span className="text-neutral-500 font-mono text-xs sm:text-sm w-5 shrink-0 text-right">
+                    {index + 1}
+                </span>
+                <img
+                    src={track.artworkUrl60}
+                    alt=""
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                    <p className="font-bold text-white text-sm sm:text-base truncate">
+                        {track.trackName}
+                    </p>
+                    <p className="text-xs sm:text-sm text-neutral-400 truncate">
+                        {track.artistName}
+                    </p>
+                </div>
+            </div>
+            {isOwner && (
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(track.trackId);
+                    }}
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-neutral-500 hover:text-red-500 active:text-red-500 font-bold px-3 sm:px-4 transition-all cursor-pointer shrink-0 text-sm"
+                    aria-label={`Remove ${track.trackName} from playlist`}
+                >
+                    X
+                </button>
+            )}
+        </li>
+    );
+}
+
+export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay }) {
     const { setCurrentTrackList, createPlaylist, playlists } = usePlaylists();
     const { user } = useAuth();
 
     function handleAddTrack(newTrack) {
-        const trackExists = playlist.tracks.some(t => t.trackId === newTrack.trackId);
+        const trackExists = playlist.tracks.some((t) => t.trackId === newTrack.trackId);
 
         if (!trackExists) {
             const updatedPlaylist = {
                 ...playlist,
-                tracks: [...playlist.tracks, newTrack]
+                tracks: [...playlist.tracks, newTrack],
             };
             onUpdate(updatedPlaylist);
         } else {
@@ -26,7 +115,7 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
     function handleDeleteTrack(id) {
         const updatedPlaylist = {
             ...playlist,
-            tracks: [...playlist.tracks].filter(t => t.trackId !== id)
+            tracks: [...playlist.tracks].filter((t) => t.trackId !== id),
         };
 
         onUpdate(updatedPlaylist);
@@ -40,8 +129,8 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
     function handleShare() {
         const updatedPlaylist = {
             ...playlist,
-            isShared: !playlist.isShared
-        }
+            isShared: !playlist.isShared,
+        };
 
         onUpdate(updatedPlaylist);
     }
@@ -59,10 +148,37 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
             ...restOfPlaylist,
             isShared: false,
             privacy: "Private",
-            creatorName: user.username
+            creatorName: user.username,
         };
 
         await createPlaylist(copy);
+    }
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5, 
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    function handleDragEnd(event) {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = playlist.tracks.findIndex((t) => t.trackId === active.id);
+            const newIndex = playlist.tracks.findIndex((t) => t.trackId === over.id);
+
+            const reorderedTracks = arrayMove(playlist.tracks, oldIndex, newIndex);
+
+            onUpdate({
+                ...playlist,
+                tracks: reorderedTracks,
+            });
+        }
     }
 
     const isOwner = user?.username === playlist.creatorName;
@@ -125,50 +241,32 @@ export default function Playlist({playlist, onDelete, onEdit, onUpdate, onPlay})
                         This playlist is empty. Search below to add tracks.
                     </p>
                 ) : (
-                    <ul className="flex flex-col gap-2">
-                        {playlist.tracks.map((track, index) => (
-                            <li
-                                key={track.trackId}
-                                onClick={() => handlePlayTrack(track)}
-                                className="flex items-center justify-between gap-2 p-3 bg-neutral-900 rounded-md group hover:bg-neutral-800 active:bg-neutral-800 transition-colors cursor-pointer min-w-0"
-                            >
-                                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                                    <span className="text-neutral-500 font-mono text-xs sm:text-sm w-5 shrink-0 text-right">
-                                        {index + 1}
-                                    </span>
-                                    <img
-                                        src={track.artworkUrl60}
-                                        alt=""
-                                        className="w-10 h-10 sm:w-12 sm:h-12 rounded shrink-0"
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={playlist.tracks.map((t) => t.trackId)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <ul className="flex flex-col gap-2">
+                                {playlist.tracks.map((track, index) => (
+                                    <SortableTrackItem
+                                        key={track.trackId}
+                                        track={track}
+                                        index={index}
+                                        isOwner={isOwner}
+                                        onPlay={handlePlayTrack}
+                                        onDelete={handleDeleteTrack}
                                     />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="font-bold text-white text-sm sm:text-base truncate">
-                                            {track.trackName}
-                                        </p>
-                                        <p className="text-xs sm:text-sm text-neutral-400 truncate">
-                                            {track.artistName}
-                                        </p>
-                                    </div>
-                                </div>
-                                {isOwner && (
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteTrack(track.trackId);
-                                        }}
-                                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-neutral-500 hover:text-red-500 active:text-red-500 font-bold px-3 sm:px-4 transition-all cursor-pointer shrink-0 text-sm"
-                                        aria-label={`Remove ${track.trackName} from playlist`}
-                                    >
-                                        X
-                                    </button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
+                                ))}
+                            </ul>
+                        </SortableContext>
+                    </DndContext>
                 )}
             </div>
             {isOwner && <TrackSearch onAdd={handleAddTrack} />}
         </article>
-    )
+    );
 }
