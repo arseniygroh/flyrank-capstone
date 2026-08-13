@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const fs = require("fs").promises;
 const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 require("dotenv").config();
 
 const app = express();
@@ -14,6 +16,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   /^https:\/\/flyrank-capstone-.*-arseniygrohs-projects\.vercel\.app$/,
 ].filter(Boolean);
+
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -33,12 +36,50 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); 
+      const isAllowed = allowedOrigins.some((allowed) =>
+        typeof allowed === "string" ? allowed === origin : allowed.test(origin)
+      );
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 const DB_PATH = path.join(__dirname, "data/users.json");
 const PLAYLISTS_DB = path.join(__dirname, "data/playlists.json");
 const JWT_SECRET = "super_secret_key"; 
 const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z\d@$!%*?&]{8,}$/
+
+
+io.on("connection", (socket) => {
+  console.log(`Live connection established: ${socket.id}`);
+
+  socket.on("join_playlist", (playlistId) => {
+    socket.join(playlistId);
+    console.log(`User ${socket.id} joined playlist: ${playlistId}`);
+  });
+
+  socket.on("send_playlist_update", (updatedPlaylist) => {
+    socket.to(updatedPlaylist.id).emit("receive_playlist_update", updatedPlaylist);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -57,7 +98,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-
 async function getUsers() {
     const data = await fs.readFile(DB_PATH, "utf8");
     return JSON.parse(data);
@@ -71,7 +111,6 @@ async function getPlaylists() {
 async function savePlaylists(playlists) {
     await fs.writeFile(PLAYLISTS_DB, JSON.stringify(playlists, null, 2));
 }
-
 
 app.delete("/playlists/:playlistId/comments/:commentId", authenticateToken, async (req, res) => {
   try {
@@ -110,7 +149,6 @@ app.delete("/playlists/:playlistId/comments/:commentId", authenticateToken, asyn
     res.status(500).json({error: "Failed to delete comment"});
   }
 });
-
 
 app.post("/playlists/:id/comments", authenticateToken, async (req, res) => {
   try {
@@ -205,7 +243,6 @@ app.post("/playlists/:id/rate", authenticateToken, async (req, res) => {
     res.status(500).json({error: "Failed to rate the playlist"});
   }
 });
-
 
 app.get("/playlists/share", async (req, res) => {
     try {
@@ -335,7 +372,6 @@ app.put("/playlists/:id", authenticateToken, async (req, res) => {
 
     const targetPlaylist = playlists[playlistIndex];
     
-    
     const isOwner = targetPlaylist.userId === req.user.userId;
     const isCollaborative = targetPlaylist.privacy === "Collaborative"; 
 
@@ -386,7 +422,6 @@ app.post("/playlists/:id/tracks", authenticateToken, async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
 });
-
 
 app.post("/register", async (req, res) => {
     try {
@@ -471,5 +506,8 @@ app.post("/login", async (req, res) => {
       res.status(500).json({error: "Internal server error"});
     }
 });
-  
-app.listen(PORT);
+
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
