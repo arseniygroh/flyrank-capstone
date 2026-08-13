@@ -34,38 +34,45 @@ export default function TrackSearch({onAdd}) {
     }
 
     return (
-        <div className="mt-8">
-            <div className="flex gap-4 items-end mb-6">
-                <div className="flex-1 flex flex-col gap-2">
+        <div className="mt-6 sm:mt-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end mb-6">
+                <div className="flex-1 flex flex-col gap-2 min-w-0">
                     <label htmlFor="query" className="text-sm font-bold tracking-widest uppercase text-neutral-400">
                         Add Tracks
                     </label>
-                    <input 
+                    <input
                         id="query"
-                        type="text" 
-                        value={query} 
-                        onChange={handleInputChange} 
+                        type="text"
+                        value={query}
+                        onChange={handleInputChange}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         placeholder="Search for a song or artist..."
-                        className="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-white transition-colors"
+                        className="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white text-base focus:outline-none focus:border-white transition-colors"
                     />
                 </div>
-                <StatefulButton onClick={handleSearch} idleText="Search" />
+                <div className="shrink-0 w-full sm:w-auto [&_button]:w-full sm:[&_button]:w-auto">
+                    <StatefulButton onClick={handleSearch} idleText="Search" />
+                </div>
             </div>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-        
+            {error && <p className="text-red-500 mb-4 text-sm sm:text-base">{error}</p>}
+
             <div className="flex flex-col gap-2">
                 {data.map(track => (
-                    <div key={track.trackId} className="p-3 bg-neutral-800 rounded flex justify-between items-center">
-                        <div>
-                            <p className="font-bold text-white">{track.trackName}</p>
-                            <p className="text-sm text-neutral-400">{track.artistName}</p>
+                    <div
+                        key={track.trackId}
+                        className="p-3 bg-neutral-800 rounded flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 min-w-0"
+                    >
+                        <div className="min-w-0">
+                            <p className="font-bold text-white text-sm sm:text-base truncate">{track.trackName}</p>
+                            <p className="text-xs sm:text-sm text-neutral-400 truncate">{track.artistName}</p>
                         </div>
-                        <StatefulButton 
-                            onClick={async () => await onAdd(track)} 
-                            idleText="Add" 
-                        />
+                        <div className="shrink-0 self-end sm:self-auto w-full sm:w-auto [&_button]:w-full sm:[&_button]:w-auto">
+                            <StatefulButton
+                                onClick={async () => await onAdd(track)}
+                                idleText="Add"
+                            />
+                        </div>
                     </div>
                 ))}
             </div>
