@@ -322,33 +322,39 @@ app.delete("/playlists/:id", authenticateToken, async (req, res) => {
 });
 
 app.put("/playlists/:id", authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updatedData = req.body;
-      const playlists = await getPlaylists();
-  
-      const playlistIndex = playlists.findIndex(p => p.id === id);
-      
-      if (playlistIndex === -1) {
-        return res.status(404).json({ error: "Playlist not found" });
-      }
-  
-      if (playlists[playlistIndex].userId !== req.user.userId) {
-        return res.status(403).json({ error: "Unauthorized to edit this playlist" });
-      }
-  
-      playlists[playlistIndex] = {
-        ...playlists[playlistIndex],
-        ...updatedData,
-        id: playlists[playlistIndex].id, 
-        userId: playlists[playlistIndex].userId 
-      };
-  
-      await savePlaylists(playlists);
-      res.json(playlists[playlistIndex]);
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const playlists = await getPlaylists();
+
+    const playlistIndex = playlists.findIndex(p => p.id === id);
+    
+    if (playlistIndex === -1) {
+      return res.status(404).json({ error: "Playlist not found" });
     }
+
+    const targetPlaylist = playlists[playlistIndex];
+    
+    
+    const isOwner = targetPlaylist.userId === req.user.userId;
+    const isCollaborative = targetPlaylist.privacy === "Collaborative"; 
+
+    if (!isOwner && !isCollaborative) {
+      return res.status(403).json({ error: "Unauthorized to edit this playlist" });
+    }
+
+    playlists[playlistIndex] = {
+      ...targetPlaylist,
+      ...updatedData,
+      id: targetPlaylist.id, 
+      userId: targetPlaylist.userId
+    };
+
+    await savePlaylists(playlists);
+    res.json(playlists[playlistIndex]);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/playlists/:id/tracks", authenticateToken, async (req, res) => {

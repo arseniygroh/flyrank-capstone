@@ -111,6 +111,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
                 ...playlist,
                 tracks: [...playlist.tracks, newTrack],
             };
+            setCurrentTrackList(updatedPlaylist.tracks);
             onUpdate(updatedPlaylist);
         } else {
             alert("You already have this track in your playlist");
@@ -123,7 +124,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             ...playlist,
             tracks: [...playlist.tracks].filter((t) => t.trackId !== id),
         };
-
+        setCurrentTrackList(updatedPlaylist.tracks);
         onUpdate(updatedPlaylist);
     }
 
@@ -181,7 +182,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             const newIndex = playlist.tracks.findIndex((t) => t.trackId === over.id);
 
             const reorderedTracks = arrayMove(playlist.tracks, oldIndex, newIndex);
-
+            setCurrentTrackList(reorderedTracks);
             onUpdate({
                 ...playlist,
                 tracks: reorderedTracks,
