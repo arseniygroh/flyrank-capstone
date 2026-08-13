@@ -1,9 +1,11 @@
 "use client";
 
-import { usePlaylists } from "@/context/PlaylistsContext";
+import { useEffect } from "react";
+import { usePlaylists, API_URL } from "@/context/PlaylistsContext";
 import TrackSearch from "./TrackSearch";
 import { useAuth } from "@/context/AuthContext";
 import StatefulButton from "@/components/StatefulButton";
+import { io } from "socket.io-client";
 
 import {
     DndContext,
@@ -22,6 +24,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react"; 
+
+
+const socket = io(API_URL);
 
 function SortableTrackItem({ track, index, isOwner, canEdit, onPlay, onDelete }) {
     const {
@@ -99,9 +104,27 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
     const { user } = useAuth();
 
     const isOwner = user?.username === playlist.creatorName;
-    
     const isCollaborative = playlist.privacy === "Collaborative";
     const canEdit = isOwner || (isCollaborative && user);
+
+    useEffect(() => {
+        if (!playlist?.id) return;
+
+        socket.emit("join_playlist", playlist.id);
+
+        socket.on("receive_playlist_update", (updatedPlaylist) => {
+            onUpdate(updatedPlaylist); 
+        });
+
+        return () => {
+            socket.off("receive_playlist_update");
+        };
+    }, [playlist?.id, onUpdate]);
+
+    function broadcastAndUpdate(updatedPlaylist) {
+        onUpdate(updatedPlaylist);
+        socket.emit("send_playlist_update", updatedPlaylist);
+    }
 
     function handleAddTrack(newTrack) {
         const trackExists = playlist.tracks.some((t) => t.trackId === newTrack.trackId);
@@ -111,8 +134,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
                 ...playlist,
                 tracks: [...playlist.tracks, newTrack],
             };
-            setCurrentTrackList(updatedPlaylist.tracks);
-            onUpdate(updatedPlaylist);
+            broadcastAndUpdate(updatedPlaylist);
         } else {
             alert("You already have this track in your playlist");
             throw new Error("Track exists in playlist");
@@ -124,8 +146,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             ...playlist,
             tracks: [...playlist.tracks].filter((t) => t.trackId !== id),
         };
-        setCurrentTrackList(updatedPlaylist.tracks);
-        onUpdate(updatedPlaylist);
+        broadcastAndUpdate(updatedPlaylist);
     }
 
     function handlePlayTrack(track) {
@@ -138,8 +159,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             ...playlist,
             isShared: !playlist.isShared,
         };
-
-        onUpdate(updatedPlaylist);
+        broadcastAndUpdate(updatedPlaylist);
     }
 
     async function handleAddToMyOwnPlaylists() {
@@ -182,11 +202,13 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             const newIndex = playlist.tracks.findIndex((t) => t.trackId === over.id);
 
             const reorderedTracks = arrayMove(playlist.tracks, oldIndex, newIndex);
-            setCurrentTrackList(reorderedTracks);
-            onUpdate({
+            
+            const updatedPlaylist = {
                 ...playlist,
                 tracks: reorderedTracks,
-            });
+            };
+
+            broadcastAndUpdate(updatedPlaylist);
         }
     }
 
