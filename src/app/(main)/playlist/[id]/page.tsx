@@ -6,6 +6,18 @@ import { useParams, useRouter } from "next/navigation";
 import PlaylistComponent from "@/components/Playlist"; 
 import { usePlaylists } from "@/context/PlaylistsContext";
 import type { Playlist } from "@/types/playlist";
+import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
+
+const CassetteScene = dynamic(() => import('@/components/CassetteScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-72 md:h-96 my-8 rounded-3xl bg-neutral-900 border border-neutral-800 flex flex-col items-center justify-center text-neutral-500">
+      <Loader2 className="w-8 h-8 animate-spin mb-4" />
+      <p className="text-sm font-medium">Loading 3D Experience...</p>
+    </div>
+  )
+});
 
 export default function PlaylistDetailPage() {
   const params = useParams();
@@ -18,6 +30,7 @@ export default function PlaylistDetailPage() {
     updatePlaylist,
     deletePlaylist,
     setCurrentTrack,
+    isPaused
   } = usePlaylists();
 
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
@@ -76,13 +89,20 @@ export default function PlaylistDetailPage() {
     router.push(`/playlist/${playlist.id}/edit`);
   }
 
+  
   return (
-    <PlaylistComponent
-      playlist={playlist}
-      onDelete={handleDelete}
-      onEdit={handleEdit}
-      onUpdate={updatePlaylist}
-      onPlay={setCurrentTrack}
-    />
+    <div className="flex flex-col w-full">
+      <CassetteScene 
+        playlistName={playlist.name} 
+        isPlaying={!isPaused}
+      />
+      <PlaylistComponent
+        playlist={playlist}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
+        onUpdate={updatePlaylist}
+        onPlay={setCurrentTrack}
+      />
+    </div>
   );
 }
