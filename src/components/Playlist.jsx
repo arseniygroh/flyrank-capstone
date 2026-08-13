@@ -1,4 +1,5 @@
 "use client";
+
 import { usePlaylists } from "@/context/PlaylistsContext";
 import TrackSearch from "./TrackSearch";
 import { useAuth } from "@/context/AuthContext";
@@ -22,7 +23,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react"; 
 
-function SortableTrackItem({ track, index, isOwner, onPlay, onDelete }) {
+function SortableTrackItem({ track, index, isOwner, canEdit, onPlay, onDelete }) {
     const {
         attributes,
         listeners,
@@ -48,7 +49,7 @@ function SortableTrackItem({ track, index, isOwner, onPlay, onDelete }) {
             className="flex items-center justify-between gap-2 p-3 bg-neutral-900 rounded-md group hover:bg-neutral-800 active:bg-neutral-800 transition-colors cursor-pointer min-w-0"
         >
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                {isOwner && (
+                {canEdit && (
                     <div
                         {...attributes}
                         {...listeners}
@@ -76,7 +77,7 @@ function SortableTrackItem({ track, index, isOwner, onPlay, onDelete }) {
                     </p>
                 </div>
             </div>
-            {isOwner && (
+            {canEdit && (
                 <button
                     type="button"
                     onClick={(e) => {
@@ -96,6 +97,11 @@ function SortableTrackItem({ track, index, isOwner, onPlay, onDelete }) {
 export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay }) {
     const { setCurrentTrackList, createPlaylist, playlists } = usePlaylists();
     const { user } = useAuth();
+
+    const isOwner = user?.username === playlist.creatorName;
+    
+    const isCollaborative = playlist.privacy === "Collaborative";
+    const canEdit = isOwner || (isCollaborative && user);
 
     function handleAddTrack(newTrack) {
         const trackExists = playlist.tracks.some((t) => t.trackId === newTrack.trackId);
@@ -166,6 +172,8 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
     );
 
     function handleDragEnd(event) {
+        if (!canEdit) return; 
+
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
@@ -180,8 +188,6 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
             });
         }
     }
-
-    const isOwner = user?.username === playlist.creatorName;
 
     return (
         <article className="flex flex-col p-4 sm:p-6 h-full text-white w-full min-w-0">
@@ -257,6 +263,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
                                         track={track}
                                         index={index}
                                         isOwner={isOwner}
+                                        canEdit={canEdit} 
                                         onPlay={handlePlayTrack}
                                         onDelete={handleDeleteTrack}
                                     />
@@ -266,7 +273,7 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
                     </DndContext>
                 )}
             </div>
-            {isOwner && <TrackSearch onAdd={handleAddTrack} />}
+            {canEdit && <TrackSearch onAdd={handleAddTrack} />}
         </article>
     );
 }
