@@ -232,11 +232,15 @@
     "id": "1786885475029",
     "userId": "1784740043936",
     "name": "Test",
-    "privacy": "Private",
+    "privacy": "Public",
     "description": "Test image",
     "tracks": [],
     "creatorName": "Arsenii",
-    "isShared": false,
-    "coverImage": "https://i.pinimg.com/1200x/ba/bf/b3/babfb353df31867d832d8358654792b2.jpg"
+    "isShared": true,
+    "coverImage": "https://i.pinimg.com/1200x/ba/bf/b3/babfb353df31867d832d8358654792b2.jpg",
+    "likes": [
+      "1784740043936"
+    ],
+    "dislikes": []
   }
 ]

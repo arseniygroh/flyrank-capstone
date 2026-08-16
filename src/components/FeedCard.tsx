@@ -119,12 +119,20 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
           View Playlist
         </Link>
       </div>
-
       <div className="p-6">
         <div className="flex items-start gap-4 mb-4">
-          <div className="w-20 h-20 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0">
-            <Music className="w-10 h-10 text-neutral-500" />
-          </div>
+          
+          {playlist.coverImage ? (
+            <img 
+              src={playlist.coverImage} 
+              alt={`${playlist.name} cover`} 
+              className="w-20 h-20 object-cover rounded-xl shrink-0 bg-neutral-800 shadow-sm border border-neutral-800"
+            />
+          ) : (
+            <div className="w-20 h-20 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0 border border-neutral-800">
+              <Music className="w-10 h-10 text-neutral-500" />
+            </div>
+          )}
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">
               {playlist.name}
@@ -138,6 +146,7 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
           {playlist.description || "No description provided."}
         </p>
       </div>
+      
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-950/50 flex items-center gap-6">
         <button onClick={() => handleRate("like")} className="flex items-center gap-2 text-neutral-400 hover:text-green-400 transition-colors group">
           <ThumbsUp className="w-5 h-5 group-active:scale-90 transition-transform" /> 
@@ -164,13 +173,12 @@ export default function FeedCard({ playlist }: { playlist: Playlist }) {
             })
           : "";
 
-        
         const isOwner = user && user.id === comment.userId;
 
         return (
           <div 
             key={comment.id} 
-            className="flex flex-col gap-1 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/50 group"
+            className="flex flex-col gap-1 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/50 group m-4 mt-0"
           >
             <div className="flex items-baseline justify-between">
               <span className="font-bold text-neutral-200 text-sm">
