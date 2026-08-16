@@ -37,16 +37,21 @@ export default function TrackCard({track, tracks}: {track: PlaylistTrack, tracks
         <img 
           src={track?.artworkUrl100.replace('100x100', '300x300')} 
           alt={track?.trackName}
+          width={300}
+          height={300}
           className="w-full aspect-square object-cover rounded-md shadow-lg group-hover:opacity-50 transition-opacity"
         />
+        
         <button
           onClick={handleTogglePlay}
+          aria-label={showPauseIcon ? `Pause ${track?.trackName}` : `Play ${track?.trackName}`}
           className="absolute inset-0 m-auto w-12 h-12 bg-green-500 rounded-full
                     opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100
-                    transition-opacity text-black"
+                    transition-opacity text-black focus:ring-2 focus:ring-white focus:outline-none"
         >
           {showPauseIcon ? (
             <svg
+              aria-hidden="true"
               fill="currentColor"
               viewBox="0 0 24 24"
               className="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2"
@@ -55,6 +60,7 @@ export default function TrackCard({track, tracks}: {track: PlaylistTrack, tracks
             </svg>
           ) : (
             <svg
+              aria-hidden="true"
               fill="currentColor"
               viewBox="0 0 24 24"
               className="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-[calc(50%)] translate-x-[calc(-50%+1px)]"
@@ -84,7 +90,7 @@ export default function TrackCard({track, tracks}: {track: PlaylistTrack, tracks
                 <button
                   key={p.id}
                   onClick={() => handleSelectPlaylist(p.id)}
-                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 transition-colors truncate"
+                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 transition-colors truncate focus:ring-2 focus:ring-inset focus:ring-white focus:outline-none"
                 >
                   {p.name}
                 </button>
@@ -96,7 +102,8 @@ export default function TrackCard({track, tracks}: {track: PlaylistTrack, tracks
         <button 
           onClick={() => setShowDropdown(!showDropdown)}
           disabled={isAdded}
-          className={`w-full py-1.5 text-xs font-bold rounded-full transition-colors ${
+          aria-expanded={showDropdown}
+          className={`w-full py-1.5 text-xs font-bold rounded-full transition-colors focus:ring-2 focus:ring-white focus:outline-none ${
             isAdded 
               ? "bg-green-500 text-black" 
               : "bg-white text-neutral-900 hover:bg-neutral-200"
