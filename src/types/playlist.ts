@@ -20,6 +20,7 @@ export type Playlist = {
   likes?: string[];
   dislikes?: string[];
   comments?: [];
+  coverImage?: string;
 };
 
 export type PlaylistFormData = {
@@ -27,4 +28,5 @@ export type PlaylistFormData = {
   privacy: PlaylistPrivacy;
   description: string;
   creatorName: string | undefined | null;
+  coverImage?: string;
 };

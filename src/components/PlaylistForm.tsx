@@ -37,13 +37,16 @@ export default function PlaylistForm({
   initialData,
   onCancel,
 }: PlaylistFormProps) {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [name, setName] = useState(initialData ? initialData.name : "");
   const [privacy, setPrivacy] = useState<PlaylistPrivacy>(
     initialData ? initialData.privacy : "Private"
   );
   const [description, setDescription] = useState(
     initialData ? initialData.description : ""
+  );
+  const [coverImage, setCoverImage] = useState(
+    initialData?.coverImage ? initialData.coverImage : ""
   );
   const [isTouched, setIsTouched] = useState(false);
 
@@ -61,11 +64,19 @@ export default function PlaylistForm({
 
     setIsSubmitting(true);
     try {
-      await onSubmit?.({ name: name.trim(), privacy, description: description.trim(), creatorName: user?.username });
+      await onSubmit?.({ 
+        name: name.trim(), 
+        privacy, 
+        description: description.trim(), 
+        creatorName: user?.username,
+        coverImage: coverImage.trim() 
+      });
+      
       if (!initialData) {
         setName("");
         setPrivacy("Private");
         setDescription("");
+        setCoverImage("");
         setIsTouched(false);
       }
     } finally {
@@ -144,7 +155,22 @@ export default function PlaylistForm({
           </p>
         )}
       </div>
-
+      <div>
+        <label
+          className="text-sm font-semibold text-neutral-300"
+          htmlFor="playlist-cover"
+        >
+          Cover Image URL <span className="text-neutral-500 font-normal">(Optional)</span>
+        </label>
+        <input
+          className="mt-2 w-full rounded-md border border-neutral-700 bg-neutral-800 p-3 transition-all focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-neutral-600"
+          id="playlist-cover"
+          type="url"
+          placeholder="https://example.com/image.jpg"
+          value={coverImage}
+          onChange={(event) => setCoverImage(event.target.value)}
+        />
+      </div>
       <button
         className="mt-4 w-full rounded-full bg-green-500 py-3 font-bold text-black transition-colors hover:bg-green-400 disabled:cursor-not-allowed disabled:bg-neutral-600 disabled:text-neutral-400"
         type="submit"
