@@ -6,6 +6,7 @@ import TrackSearch from "./TrackSearch";
 import { useAuth } from "@/context/AuthContext";
 import StatefulButton from "@/components/StatefulButton";
 import { io } from "socket.io-client";
+import { Music } from "lucide-react";
 
 import {
     DndContext,
@@ -214,53 +215,70 @@ export default function Playlist({ playlist, onDelete, onEdit, onUpdate, onPlay 
 
     return (
         <article className="flex flex-col p-4 sm:p-6 h-full text-white w-full min-w-0">
-            <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 break-words">
-                {playlist.name}
-            </h2>
-            <div className="w-fit max-w-full px-3 py-1 bg-neutral-800 text-neutral-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
-                Privacy status: {playlist.privacy}
-            </div>
-            {playlist.description && (
-                <p className="text-neutral-400 text-base sm:text-lg max-w-2xl leading-relaxed border-b border-neutral-800 pb-6 sm:pb-8 break-words">
-                    {playlist.description}
-                </p>
-            )}
-            {user?.username && (
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 sm:mt-6">
-                    {isOwner ? (
-                        <>
-                            <button
-                                className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-5 sm:px-8 rounded-full transition-colors text-sm sm:text-base"
-                                type="button"
-                                onClick={onEdit}
-                            >
-                                Edit
-                            </button>
-                            <button
-                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-5 sm:px-6 rounded-full transition-colors text-sm sm:text-base"
-                                type="button"
-                                onClick={onDelete}
-                            >
-                                Delete
-                            </button>
-                            {playlist.privacy !== "Private" && (
-                                <button
-                                    className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-5 sm:px-8 rounded-full transition-colors text-sm sm:text-base"
-                                    type="button"
-                                    onClick={handleShare}
-                                >
-                                    {!playlist.isShared ? "Share with community" : "Stop sharing"}
-                                </button>
+            <div className="flex flex-col md:flex-row items-start gap-6 sm:gap-8 mb-8 pb-8 border-b border-neutral-800">
+                {playlist.coverImage ? (
+                    <img 
+                        src={playlist.coverImage} 
+                        alt={`${playlist.name} cover`}
+                        className="w-48 h-48 sm:w-56 sm:h-56 object-cover rounded-xl shadow-2xl shrink-0 bg-neutral-800"
+                    />
+                ) : (
+                    <div className="w-20 h-20 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0">
+                        <Music className="w-10 h-10 text-neutral-500" />
+                    </div>
+                )}
+                <div className="flex flex-col justify-end h-full mt-4 md:mt-0">
+                    <div className="w-fit max-w-full px-3 py-1 bg-neutral-800 text-neutral-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
+                        {playlist.privacy} Playlist
+                    </div>
+                    
+                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-4 break-words line-clamp-2">
+                        {playlist.name}
+                    </h2>
+                    
+                    {playlist.description && (
+                        <p className="text-neutral-400 text-base sm:text-lg max-w-2xl leading-relaxed break-words">
+                            {playlist.description}
+                        </p>
+                    )}
+                    {user?.username && (
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-6">
+                            {isOwner ? (
+                                <>
+                                    <button
+                                        className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-5 rounded-full transition-colors text-sm"
+                                        type="button"
+                                        onClick={onEdit}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-2 px-5 rounded-full transition-colors text-sm"
+                                        type="button"
+                                        onClick={onDelete}
+                                    >
+                                        Delete
+                                    </button>
+                                    {playlist.privacy !== "Private" && (
+                                        <button
+                                            className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-5 rounded-full transition-colors text-sm"
+                                            type="button"
+                                            onClick={handleShare}
+                                        >
+                                            {!playlist.isShared ? "Share with community" : "Stop sharing"}
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                <StatefulButton
+                                    onClick={handleAddToMyOwnPlaylists}
+                                    idleText="Add to my own playlists"
+                                />
                             )}
-                        </>
-                    ) : (
-                        <StatefulButton
-                            onClick={handleAddToMyOwnPlaylists}
-                            idleText="Add to my own playlists"
-                        />
+                        </div>
                     )}
                 </div>
-            )}
+            </div>
             <div className="mt-8 sm:mt-12 mb-6 sm:mb-8">
                 <h3 className="text-lg sm:text-xl font-bold mb-4 text-neutral-200 border-b border-neutral-800 pb-2">
                     Tracks

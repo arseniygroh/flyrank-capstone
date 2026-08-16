@@ -227,5 +227,16 @@
     ],
     "creatorName": "test",
     "isShared": false
+  },
+  {
+    "id": "1786885475029",
+    "userId": "1784740043936",
+    "name": "Test",
+    "privacy": "Private",
+    "description": "Test image",
+    "tracks": [],
+    "creatorName": "Arsenii",
+    "isShared": false,
+    "coverImage": "https://i.pinimg.com/1200x/ba/bf/b3/babfb353df31867d832d8358654792b2.jpg"
   }
 ]
