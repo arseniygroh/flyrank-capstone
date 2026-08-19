@@ -33,13 +33,8 @@ export default function AppShell({ children }) {
   const { user, logout, isHydrated } = useAuth();
 
   return (
-    // 1. CHANGED: `min-h-screen` to `h-screen` and added `overflow-hidden`
     <div className="flex h-screen w-full flex-col bg-black text-white overflow-hidden">
-      
-      {/* 2. This middle flex wrapper will now properly stretch to fill the space above the player */}
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        
-        {/* 3. Removed `h-full` since flex items stretch automatically when the parent height is fixed */}
         <aside className="relative z-20 flex w-full md:w-64 shrink-0 flex-col border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-950 p-4 md:p-6 max-h-[40vh] md:max-h-none">
           <nav className="flex flex-row md:flex-col gap-4 pb-2 md:pb-0">
             <NavLink href="/">Home</NavLink>
@@ -92,14 +87,10 @@ export default function AppShell({ children }) {
             )}
           </div>
         </aside>
-
-        {/* 4. The main scrollable content area */}
         <main className="relative z-10 min-h-0 flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
-
-      {/* 5. The Player locked to the bottom */}
       <div className="relative z-20 shrink-0">
         <Player track={currentTrack} />
       </div>
