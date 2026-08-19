@@ -33,16 +33,22 @@ export default function AppShell({ children }) {
   const { user, logout, isHydrated } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
+    // 1. CHANGED: `min-h-screen` to `h-screen` and added `overflow-hidden`
+    <div className="flex h-screen w-full flex-col bg-black text-white overflow-hidden">
+      
+      {/* 2. This middle flex wrapper will now properly stretch to fill the space above the player */}
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside className="flex w-full md:w-64 shrink-0 flex-col border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-950 p-4 md:p-6 max-h-[40vh] md:max-h-none">
+        
+        {/* 3. Removed `h-full` since flex items stretch automatically when the parent height is fixed */}
+        <aside className="relative z-20 flex w-full md:w-64 shrink-0 flex-col border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-950 p-4 md:p-6 max-h-[40vh] md:max-h-none">
           <nav className="flex flex-row md:flex-col gap-4 pb-2 md:pb-0">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/playlist/new">New playlist</NavLink>
             <NavLink href="/chat">AI</NavLink>
             <NavLink href="/community">Community</NavLink>
           </nav>
-          <div className="flex-1 overflow-y-auto min-h-[100px]">
+          
+          <div className="flex-1 overflow-y-auto min-h-[100px] mt-4 md:mt-6">
             {hydrated ? (
               <PlaylistList />
             ) : (
@@ -50,7 +56,7 @@ export default function AppShell({ children }) {
             )}
           </div>
 
-          <div className="mt-auto border-t border-neutral-800 shrink-0">
+          <div className="mt-auto border-t border-neutral-800 shrink-0 pt-4">
             {!isHydrated ? (
               <div className="h-10 w-full animate-pulse bg-neutral-800 rounded-md" />
             ) : user ? (
@@ -86,9 +92,17 @@ export default function AppShell({ children }) {
             )}
           </div>
         </aside>
-        <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
+
+        {/* 4. The main scrollable content area */}
+        <main className="relative z-10 min-h-0 flex-1 overflow-y-auto">
+          {children}
+        </main>
       </div>
-      <Player track={currentTrack} />
+
+      {/* 5. The Player locked to the bottom */}
+      <div className="relative z-20 shrink-0">
+        <Player track={currentTrack} />
+      </div>
     </div>
   );
 }
