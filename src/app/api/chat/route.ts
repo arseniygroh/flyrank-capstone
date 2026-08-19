@@ -17,10 +17,17 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "messages must be an array" }), { status: 400 });
   }
 
+  const cappedMessages = messages.slice(-10).map((m: any) => ({
+    ...m,
+    content: typeof m.content === 'string' 
+      ? m.content.substring(0, 1000) 
+      : m.content
+  })) as UIMessage[];
+
   const result = streamText({
     model: chatModel,
     system: SYSTEM_PROMPT,
-    messages: await convertToModelMessages(messages),
+    messages: await convertToModelMessages(cappedMessages),
     tools: {
       searchItunes: tool({
         description: 'Search the iTunes API for music tracks.',
