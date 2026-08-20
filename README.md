@@ -16,11 +16,10 @@ This is my capstone project for the FlyRank internship. It's a full-stack music 
 
 ## Screenshots
 
-```md
+
 ![Home feed](./screenshots/home.png)
 ![Playlist detail with 3D cassette](./screenshots/playlist.png)
 ![AI chat](./screenshots/chat.png)
-```
 
 ## Tech stack
 
@@ -52,22 +51,22 @@ This is my capstone project for the FlyRank internship. It's a full-stack music 
 The frontend and backend are two separate apps that talk to each other over HTTP.
 
 ```
-┌─────────────────────┐   HTTP + WebSocket   ┌──────────────────────┐
-│   Next.js frontend   │ ───────────────────► │   Express backend     │
-│   (Vercel)           │ ◄─────────────────── │   (Render)             │
-│                       │                       │                        │
-│   - pages/routes      │                       │   - /register, /login │
-│   - React contexts    │                       │   - /playlists CRUD    │
-│     (Auth, Playlists) │                       │   - /playlists/share,  │
-│   - /api/chat route   │                       │     comments, ratings  │
-│     (talks to Gemini) │                       │   - Socket.IO server   │
-│                       │                       │   - JWT auth middleware│
-│                       │                       │   - JSON file storage  │
-└──────────┬────────────┘                       └───────────┬────────────┘
+┌───────────────────────┐   HTTP + WebSocket    ┌──────────────────────┐
+│   Next.js frontend    │ ───────────────────►  │   Express backend    │
+│   (Vercel)            │ ◄───────────────────  │   (Render)           │
+│                       │                       │                      │
+│   - pages/routes      │                       │   - /register, /login│
+│   - React contexts    │                       │   - /playlists CRUD  │
+│     (Auth, Playlists) │                       │   - /playlists/share,│
+│   - /api/chat route   │                       │     comments, ratings│
+│     (talks to Gemini) │                       │   - Socket.IO server │
+│                       │                       │ - JWT auth middleware│
+│                       │                       │   - JSON file storage│
+└──────────┬────────────┘                       └───────────┬──────────┘
            │                                                  │
            ▼                                                  ▼
    iTunes Search API                                  data/users.json
-   (public, no key needed)                             data/playlists.json
+   (public, no key needed)                            data/playlists.json
 ```
 
 **Auth flow:** on login, the backend signs a JWT and sends it back with an expiration timestamp. The frontend stores it in `localStorage`, sends it as a `Bearer` token on every playlist request, and schedules a local timer to auto-log-out the user right when the token expires, backed up by checking for `401` responses on every API call.
