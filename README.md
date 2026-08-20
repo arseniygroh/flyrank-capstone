@@ -2,6 +2,13 @@
 
 This is my capstone project for the FlyRank internship. It's a full-stack music discovery and playlist app. You search for tracks using the iTunes API, preview them, build playlists, and chat with an AI assistant that can search and recommend music for you.
 
+## Project Brief & Live Links
+**Live Application:** [Music App](https://flyrank-capstone-nu.vercel.app)
+**Backend API:** [Backend API](https://dashboard.render.com/web/srv-d9guu73rjlhs73d7hq00)
+**Repository:** [Repo link](https://github.com/arseniygroh/flyrank-capstone)
+
+FlyRank Music is a collaborative music discovery platform. **The problem it solves** is the isolation of solo music discovery, allowing friends to build playlists together in real-time while an AI assistant helps them find tracks they wouldn't easily discover otherwise. **It is built for** music enthusiasts, study groups, and event hosts who want a shared, interactive listening space. **I chose this idea** because it combines complex real-time WebSocket syncing with modern generative AI, posing a strong full-stack engineering challenge
+
 ## What it does
 
 - Browse trending tracks by category (pop, rock, electronic) pulled live from the iTunes Search API
@@ -215,3 +222,8 @@ I used Claude and Gemini throughout this project as a pair programmer, mainly fo
 - **Debugging real errors, iteratively.** A lot of this project involved pasting actual error messages and stack traces and working through them one at a time — CORS failures, a missing `dotenv` call that made an environment variable check throw and silently break CORS for every origin, a malformed GitHub Actions YAML file where one misplaced space made GitHub stop recognizing the workflow entirely, and API version mismatches after upgrading the Vercel AI SDK, where the shape of `tool()` and `useChat()` had changed between versions.
 - **Explaining unfamiliar territory.** Things like how `position: fixed` behaves relative to a transformed ancestor, why `npm ci` is stricter than `npm install`, and how GitHub Actions minutes/concurrency limits work were all explained rather than just fixed for me, so I understood the underlying reason and not just the patch. Also, AI helped me with Next.js integration and deployment in production using Vercel for frontend and Render for backend.
 - **3D experince and Shaders.** AI helped structure the initial GLSL fragment shader logic and the React Three Fiber `useFrame` loops, allowing me to focus on mathematically remixing the outputs and optimizing the model loading pipeline. Also, it helped me with 3D casette rendering which starts moving a song is being played and it is configurable, you can choose a color for you cassete.
+
+## Reflection
+
+**What was hardest?** Syncing the real-time WebSocket events (socket.io) with React's strict state lifecycle. Ensuring that a playlist update broadcasted by User A didn't overwrite a concurrent edit by User B required careful state merging and event handling. Also, making 3D experience and Shaders which requires strong foundation in `Three.js` library.
+**One thing I learned that surprised me:** I was surprised by how much heavy lifting standard WebGL and Three.js can do on the GPU without impacting the main thread, provided you optimize the models correctly and manage React renders properly.
