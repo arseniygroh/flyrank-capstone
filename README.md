@@ -116,9 +116,8 @@ node server.js
 ```
 
 ### Frontend
-
+in main project folder run:
 ```bash
-cd frontend
 npm install
 ```
 
